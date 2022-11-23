@@ -34,6 +34,8 @@ Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 
 Route::group(['middleware' => ['auth']], function () {
+   
+    // Route::get('admin', 'HomeController@admin')->name('admin');
     Route::resource('roles', RoleController::class);
     Route::resource('users', UserController::class);
 });
