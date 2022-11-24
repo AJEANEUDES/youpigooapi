@@ -24,156 +24,177 @@ class PermissionTableSeeder extends Seeder
             'role-edit',
             'role-delete',
 
-            //users
+            // //users
 
-            'user-list',
-            'user-create',
-            'user-edit',
-            'user-delete',
+            // 'user-list',
+            // 'user-create',
+            // 'user-edit',
+            // 'user-delete',
 
-            //hotel
+            // //hotel
 
-            'hotel-list',
-            'hotel-create',
-            'hotel-edit',
-            'hotel-delete',
-
-
-            //chambre
-
-            'chambre-list',
-            'chambre-create',
-            'chambre-edit',
-            'chambre-delete',
+            // 'hotel-list',
+            // 'hotel-create',
+            // 'hotel-edit',
+            // 'hotel-delete',
 
 
-            //compagnie
+            // //chambre
 
-            'compagnie-list',
-            'compagnie-create',
-            'compagnie-edit',
-            'compagnie-delete',
-
-            //bus
-
-            'bus-list',
-            'bus-create',
-            'bus-edit',
-            'bus-delete',
+            // 'chambre-list',
+            // 'chambre-create',
+            // 'chambre-edit',
+            // 'chambre-delete',
 
 
-            //trajet
+            // //compagnie
 
-            'trajet-list',
-            'trajet-create',
-            'trajet-edit',
-            'trajet-delete',
+            // 'compagnie-list',
+            // 'compagnie-create',
+            // 'compagnie-edit',
+            // 'compagnie-delete',
 
+            // //bus
 
-            //client
-
-            'client-list',
-            'client-create',
-            'client-edit',
-            'client-delete',
-
-
-            //modePayement
-
-            'modePayement-list',
-            'modePayement-create',
-            'modePayement-edit',
-            'modePayement-delete',
+            // 'bus-list',
+            // 'bus-create',
+            // 'bus-edit',
+            // 'bus-delete',
 
 
-            //reglement
+            // //trajet
 
-            'reglement-list',
-            'reglement-create',
-            'reglement-edit',
-            'reglement-delete',
-
-
-            //facture
-
-            'facture-list',
-            'facture-create',
-            'facture-edit',
-            'facture-delete',
+            // 'trajet-list',
+            // 'trajet-create',
+            // 'trajet-edit',
+            // 'trajet-delete',
 
 
-            //reservation_hotel
+            // //client
 
-            'reservation_hotel-list',
-            'reservation_hotel-create',
-            'reservation_hotel-edit',
-            'reservation_hotel-delete',
-
-
-            //reservation_bus
-
-            'reservation_bus-list',
-            'reservation_bus-create',
-            'reservation_bus-edit',
-            'reservation_bus-delete',
+            // 'client-list',
+            // 'client-create',
+            // 'client-edit',
+            // 'client-delete',
 
 
-            //voyage
+            // //modePayement
 
-            'voyage-list',
-            'voyage-create',
-            'voyage-edit',
-            'voyage-delete',
-
-
-            //service
-
-            'service-list',
-            'service-create',
-            'service-edit',
-            'service-delete',
+            // 'modePayement-list',
+            // 'modePayement-create',
+            // 'modePayement-edit',
+            // 'modePayement-delete',
 
 
-            //temoignage
+            // //reglement
 
-            'temoignage-list',
-            'temoignage-create',
-            'temoignage-edit',
-            'temoignage-delete',
-
-
-            //categorie_hotel
-
-            'categorie_hotel-list',
-            'categorie_hotel-create',
-            'categorie_hotel-edit',
-            'categorie_hotel-delete',
+            // 'reglement-list',
+            // 'reglement-create',
+            // 'reglement-edit',
+            // 'reglement-delete',
 
 
-            //categorie_article
+            // //facture
 
-            'categorie_article-list',
-            'categorie_article-create',
-            'categorie_article-edit',
-            'categorie_article-delete',
-
-
-            //article
-
-            'article-list',
-            'article-create',
-            'article-edit',
-            'article-delete',
+            // 'facture-list',
+            // 'facture-create',
+            // 'facture-edit',
+            // 'facture-delete',
 
 
-            //evenement
+            // //reservation_hotel
 
-            'evenement-list',
-            'evenement-create',
-            'evenement-edit',
-            'evenement-delete',
+            // 'reservation_hotel-list',
+            // 'reservation_hotel-create',
+            // 'reservation_hotel-edit',
+            // 'reservation_hotel-delete',
 
-            
+
+            // //reservation_bus
+
+            // 'reservation_bus-list',
+            // 'reservation_bus-create',
+            // 'reservation_bus-edit',
+            // 'reservation_bus-delete',
+
+
+            // //voyage
+
+            // 'voyage-list',
+            // 'voyage-create',
+            // 'voyage-edit',
+            // 'voyage-delete',
+
+
+            // //service
+
+            // 'service-list',
+            // 'service-create',
+            // 'service-edit',
+            // 'service-delete',
+
+
+            // //temoignage
+
+            // 'temoignage-list',
+            // 'temoignage-create',
+            // 'temoignage-edit',
+            // 'temoignage-delete',
+
+
+            // //categorie_chambre
+
+            // 'categorie_chambre-list',
+            // 'categorie_chambre-create',
+            // 'categorie_chambre-edit',
+            // 'categorie_chambre-delete',
+
+
+            // //categorie_article
+
+            // 'categorie_article-list',
+            // 'categorie_article-create',
+            // 'categorie_article-edit',
+            // 'categorie_article-delete',
+
+
+            // //article
+
+            // 'article-list',
+            // 'article-create',
+            // 'article-edit',
+            // 'article-delete',
+
+
+            // //evenement
+
+            // 'evenement-list',
+            // 'evenement-create',
+            // 'evenement-edit',
+            // 'evenement-delete',
+
+            // //categorie_chambre
+
+            // 'categorie_chambre-list',
+            // 'categorie_chambre-create',
+            // 'categorie_chambre-edit',
+            // 'categorie_chambre-delete',
+
+            //permission
+
+            'permission-list',
+            'permission-create',
+            'permission-edit',
+            'permission-delete',
+
+
+             //user
+
+             'user-list',
+             'user-create',
+             'user-edit',
+             'user-delete',
+ 
 
         ];
 

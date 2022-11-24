@@ -20,6 +20,7 @@ class CreateAdminUserSeeder extends Seeder
     public function run()
     {
         
+        User::truncate();
         $user = User::create([
             'name' => 'Super-Admin', 
             'email' => 'superadmin@gmail.com',
@@ -34,6 +35,6 @@ class CreateAdminUserSeeder extends Seeder
        
         $user->assignRole([$role->id]);
 
-        
+         
     }
 }

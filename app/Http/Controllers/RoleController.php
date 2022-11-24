@@ -135,4 +135,6 @@ class RoleController extends Controller
         return redirect()->route('roles.index')
                         ->with('success','Rôle Supprimé avec succès');
     }
+
+    
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -37,4 +38,27 @@ class LoginController extends Controller
     {
         $this->middleware('guest')->except('logout');
     }
+
+    protected function redirectTo()
+    {
+        //condition
+
+        if(Auth::user()->roles->pluck('name')->contains('SuperAdmin'))
+        {
+            return '/admin/users';
+        }
+
+        elseif(Auth::user()->roles->pluck('name')->contains('admin'))
+        {
+            return '/admin/users';
+            
+        }
+
+        else{
+            return '/dashboard';
+        }
+        
+    }
+
+
 }

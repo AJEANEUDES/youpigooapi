@@ -123,12 +123,17 @@
                     <ul class="navbar-nav ml-auto">
                         <!-- Authentication Links -->
                         @guest
-                            <li><a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a></li>
-                            <li><a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a></li>
+                            <li><a class="nav-link" href="{{ route('login') }}">{{ __('Connexion') }}</a></li>
+                            <li><a class="nav-link" href="{{ route('register') }}">{{ __('Inscription') }}</a></li>
                         @else
+
+                        @can('manage-users')
                             <li><a class="nav-link" href="{{ route('users.index') }}">Gestion des Utilisateurs</a></li>
                             <li><a class="nav-link" href="{{ route('roles.index') }}">Gestion des Rôles</a></li>
-                          
+                            <li><a class="nav-link" href="{{ route('permissions.index') }}">Gestion des Permissions</a></li>
+                        @endcan  
+
+                        
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
                                     {{ Auth::user()->name }}
@@ -138,7 +143,7 @@
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();
                                                      document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
+                                        {{ __('Déconnexion') }}
                                     </a>
 
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">

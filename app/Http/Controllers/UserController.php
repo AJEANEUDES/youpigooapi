@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Gate;
+
 
 use Illuminate\Support\Arr;
 
@@ -17,10 +19,11 @@ class UserController extends Controller
 
     function __construct()
     {
-         $this->middleware('permission:role-list|role-create|role-edit|role-delete', ['only' => ['index','store']]);
-         $this->middleware('permission:role-create', ['only' => ['create','store']]);
-         $this->middleware('permission:role-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:role-delete', ['only' => ['destroy']]);
+         $this->middleware('permission:user-list|user-create|user-edit|user-delete', ['only' => ['index','store']]);
+         $this->middleware('permission:user-create', ['only' => ['create','store']]);
+         $this->middleware('permission:user-edit', ['only' => ['edit','update']]);
+         $this->middleware('permission:user-delete', ['only' => ['destroy']]);
+         $this->middleware('auth');
     }
 
 
@@ -76,7 +79,7 @@ class UserController extends Controller
         $user->assignRole($request->input('roles'));
     
         return redirect()->route('users.index')
-                        ->with('success','User created successfully');
+                        ->with('success','Utilisateur crée avec succès');
     }
 
 
@@ -100,6 +103,14 @@ class UserController extends Controller
      */
     public function edit($id)
     {
+
+        //condition de renvoi  si l'utilisateur n'a pas  "superAdmin" en tant que rôle , il ne pourra pas éditer un utilisateur
+
+        if (Gate::denies('edit-users')) {
+            return redirect()->route('users.index')->with('error', "Vous n\'avez pas la permission");
+        }
+        
+
         $user = User::find($id);
         $roles = Role::pluck('name','name')->all();
         $userRole = $user->roles->pluck('name','name')->all();
@@ -137,7 +148,7 @@ class UserController extends Controller
         $user->assignRole($request->input('roles'));
     
         return redirect()->route('users.index')
-                        ->with('success','User updated successfully');
+                        ->with('success','Utilisateur mis à jour avec succès');
     }
     
     /**
@@ -148,9 +159,17 @@ class UserController extends Controller
      */
     public function destroy($id)
     {
+
+          //condition de renvoi  si l'utilisateur n'a pas  "superAdmin" en tant que rôle , il ne pourra pas supprimer un utilisateur
+
+          if (Gate::denies('delete-users')) {
+            return redirect()->route('users.index')->with('error', "Vous n\'avez pas la permission");
+        }
+
+
         User::find($id)->delete();
         return redirect()->route('users.index')
-                        ->with('success','User deleted successfully');
+                        ->with('success','Utilisateur supprimé avec succès');
     }
 
 

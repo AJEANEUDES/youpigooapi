@@ -42,10 +42,20 @@
         </td>
         <td>
             <a class="btn btn-info" href="{{ route('users.show',$user->id) }}">Voir</a>
+            @can('edit-users')
+          
             <a class="btn btn-primary" href="{{ route('users.edit',$user->id) }}">Editer</a>
+            @endcan
+           
+
+            @can('delete-users')
+
                 {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
                     {!! Form::submit('Supprimer', ['class' => 'btn btn-danger']) !!}
                 {!! Form::close() !!}
+
+            @endcan
+
         </td>
     </tr>
 @endforeach

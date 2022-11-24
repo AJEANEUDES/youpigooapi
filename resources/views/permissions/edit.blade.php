@@ -5,10 +5,10 @@
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <div class="pull-left">
-            <h2>Editer un Rôle</h2>
+            <h2>Editer une permission</h2>
         </div>
         <div class="pull-right">
-            <a class="btn btn-primary" href="{{ route('roles.index') }}"> retour</a>
+            <a class="btn btn-primary" href="{{ route('permissions.index') }}"> retour</a>
         </div>
     </div>
 </div>
@@ -26,7 +26,7 @@
 @endif
 
 
-{!! Form::model($role, ['method' => 'PATCH','route' => ['roles.update', $role->id]]) !!}
+{!! Form::model($permission, ['method' => 'PATCH','route' => ['permissions.update', $permission->id]]) !!}
 <div class="row">
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
@@ -36,10 +36,10 @@
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">
         <div class="form-group">
-            <strong>Permission:</strong>
+            <strong>Role:</strong>
             <br/>
-            @foreach($permission as $value)
-                <label>{{ Form::checkbox('permission[]', $value->id, in_array($value->id, $rolePermissions) ? true : false, array('class' => 'name')) }}
+            @foreach($role as $value)
+                <label>{{ Form::checkbox('role[]', $value->id, in_array($value->id, $rolePermissions) ? true : false, array('class' => 'name')) }}
                 {{ $value->name }}</label>
             <br/>
             @endforeach
