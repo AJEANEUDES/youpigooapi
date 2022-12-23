@@ -9,21 +9,27 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 use Spatie\Permission\Traits\HasPermissions;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable,  HasRoles, HasPermissions;
+    use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    protected $table = 'users';
+    protected $primaryKey = 'id';
+
+    protected $guarded = ['created_at', 'updated_at'];
+
+    // /**
+    //  * The attributes that are mass assignable.
+    //  *
+    //  * @var array<int, string>
+    //  */
+    // protected $fillable = [
+    //     'name',
+    //     'email',
+    //     'password',
+    // ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -47,13 +53,33 @@ class User extends Authenticatable
     
     //fonction de renvoi du role de l'utiliateur
 
-    public function isAdmin()
+    // public function isAdmin()
+    // {
+    //    return $this->roles()->where('name','SuperAdmin')->first();
+    // }
+
+    // public function hasAnyRole(array $roles)
+    // {
+    //     return $this->roles()-> whereIn('name',$roles)->first();
+    // }
+
+    
+    public function getJWTIdentifier()
     {
-       return $this->roles()->where('name','SuperAdmin')->first();
+        return $this->getKey();
     }
 
-    public function hasAnyRole(array $roles)
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims()
     {
-        return $this->roles()-> whereIn('name',$roles)->first();
+        return [];
     }
+
+
+
+    
 }

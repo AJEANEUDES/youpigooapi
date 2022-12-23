@@ -44,7 +44,7 @@ class UsersSeeder extends Seeder
 
             // $role->syncPermissions($permissions);
 
-            $utilisateurRole = Role::where('name', 'utilisateur')->first(); 
+            $utilisateurRole = Role::where('name', 'Client')->first(); 
 
             $utilisateur->roles()->attach($utilisateurRole);
             

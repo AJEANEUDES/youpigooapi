@@ -17,7 +17,7 @@ class RoleTableSeeder extends Seeder
     {
 
 
-        Role::create(['name'=>'utilisateur']);
+        Role::create(['name'=>'Client']);
         
     }
 }

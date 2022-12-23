@@ -1,171 +1,181 @@
-{{-- <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+{{-- Le fichier app.blade.php est le fichier principal de la vue du côté client --}}
+
+<!DOCTYPE html>
+<html lang="en">
+
+
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-
-    <title>{{ config('app.name', 'Laravel') }}</title>
-
-    <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
-
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
-
-    <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-</head>
-<body>
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                    {{ config('app.name', 'Laravel') }}
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav me-auto">
-
-                    </ul>
-
-                    <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ms-auto">
-                        <!-- Authentication Links -->
-                        @guest
-                            @if (Route::has('login'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('login') }}">{{ __('Login') }}</a>
-                                </li>
-                            @endif
-
-                            @if (Route::has('register'))
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('register') }}">{{ __('Register') }}</a>
-                                </li>
-                            @endif
-                        @else
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Logout') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-                        @endguest
-                    </ul>
-                </div>
-            </div>
-        </nav>
-
-        <main class="py-4">
-            @yield('content')
-        </main>
-    </div>
-</body>
-</html> --}}
-
-
-
-
-
-
-<html lang="{{ app()->getLocale() }}">
-<head>
-    <meta charset="utf-8">
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- CSRF Token -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'Youpigoo') }}</title>
-    <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}" defer></script>
-    <!-- Fonts -->
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Raleway:300,400,600" rel="stylesheet" type="text/css">
-    <!-- Styles -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="Youpigoo, site de reservation de chambre, etc..." name="description">
+    <meta content="Youpigoo," name="keywords">
+    <meta content="e-Media" name="author">
+
+    <!--=============== BOXICONS ===============-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/boxicons@latest/css/boxicons.min.css">
+
+    <!--=============== SWIPER CSS ===============-->
+    <link rel="stylesheet" href="{{ asset('oldassets/css/swiper-bundle.min.css') }}">
+
+    <!--=============== CSS ===============-->
+    <link rel="stylesheet" href="{{ asset('oldassets/css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('oldassets/css/colors/color-1.css') }}">
+
+    <title>@yield('title')</title>
+
+    <!-- Favicons -->
+
+
+
 </head>
+
+
+
+
+
+
 <body>
-    <div id="app">
-        <nav class="navbar navbar-expand-md navbar-light navbar-laravel">
-            <div class="container">
-                <a class="navbar-brand" href="{{ url('/') }}">
-                   Youpigoo
-                </a>
-                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-    
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <!-- Left Side Of Navbar -->
-                    <ul class="navbar-nav mr-auto"></ul>
 
+    @include('layouts.header')
 
-                    <!-- Right Side Of Navbar -->
-                    <ul class="navbar-nav ml-auto">
-                        <!-- Authentication Links -->
-                        @guest
-                            <li><a class="nav-link" href="{{ route('login') }}">{{ __('Connexion') }}</a></li>
-                            <li><a class="nav-link" href="{{ route('register') }}">{{ __('Inscription') }}</a></li>
-                        @else
+ 
 
-                        @can('manage-users')
-                            <li><a class="nav-link" href="{{ route('users.index') }}">Gestion des Utilisateurs</a></li>
-                            <li><a class="nav-link" href="{{ route('roles.index') }}">Gestion des Rôles</a></li>
-                            <li><a class="nav-link" href="{{ route('permissions.index') }}">Gestion des Permissions</a></li>
-                        @endcan  
+    <!--=============== CART (show-cart)===============-->
+    <div class="cart" id="cart">
+        <i class="bx bx-x cart__close" id="cart-close"></i>
+        <h2 class="cart__title-center">Mon Panier</h2>
 
-                        
-                            <li class="nav-item dropdown">
-                                <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
-                                    {{ Auth::user()->name }}
-                                </a>
-
-                                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
-                                    <a class="dropdown-item" href="{{ route('logout') }}"
-                                       onclick="event.preventDefault();
-                                                     document.getElementById('logout-form').submit();">
-                                        {{ __('Déconnexion') }}
-                                    </a>
-
-                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                        @csrf
-                                    </form>
-                                </div>
-                            </li>
-
-                        @endguest
-                    </ul>
+        <div class="cart__container">
+            <article class="cart__card">
+                <div class="cart__box">
+                    <img src="{{ asset('oldassets/img/product-2.png') }}" alt="" class="cart__img" />
                 </div>
-            </div>
-        </nav>
+                <div class="cart__details">
+                    <h3 class="cart__title">Windbreaker</h3>
+                    <span class="cart__price">50000000</span>
+                    <div class="cart__amount">
+                        <div class="cart__amount-content">
+                            <span class="cart__amount-box">
+                                <i class="bx bx-minus"></i>
+                            </span>
+                            <span class="cart__amount-number">1</span>
+                            <span class="cart__amount-box">
+                                <i class="bx bx-plus"></i>
+                            </span>
+                        </div>
 
+                        <i class="bx bx-trash-alt cart__amount-trash"></i>
+                    </div>
+                </div>
+            </article>
 
-        <main class="py-4">
-            <div class="container">
-            @yield('content')
-            </div>
-        </main>
+            <article class="cart__card">
+                <div class="cart__box">
+                    <img src="{{ asset('oldassets/img/product-2.png') }}" alt="" class="cart__img" />
+                </div>
+                <div class="cart__details">
+                    <h3 class="cart__title">Cardigan Hoodie</h3>
+                    <span class="cart__price">20000000</span>
+                    <div class="cart__amount">
+                        <div class="cart__amount-content">
+                            <span class="cart__amount-box">
+                                <i class="bx bx-minus"></i>
+                            </span>
+                            <span class="cart__amount-number">1</span>
+                            <span class="cart__amount-box">
+                                <i class="bx bx-plus"></i>
+                            </span>
+                        </div>
+
+                        <i class="bx bx-trash-alt cart__amount-trash"></i>
+                    </div>
+                </div>
+            </article>
+
+            <article class="cart__card">
+                <div class="cart__box">
+                    <img src="{{ asset('oldassets/img/product-2.png') }}" alt="" class="cart__img" />
+                </div>
+                <div class="cart__details">
+                    <h3 class="cart__title">Cartoon</h3>
+                    <span class="cart__price">15000000</span>
+                    <div class="cart__amount">
+                        <div class="cart__amount-content">
+                            <span class="cart__amount-box">
+                                <i class="bx bx-minus"></i>
+                            </span>
+                            <span class="cart__amount-number">1</span>
+                            <span class="cart__amount-box">
+                                <i class="bx bx-plus"></i>
+                            </span>
+                        </div>
+
+                        <i class="bx bx-trash-alt cart__amount-trash"></i>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div class="cart__prices">
+            <span class="cart__prices-item">3 items</span>
+            <span class="cart__prices-total">75000000</span>
+        </div>
     </div>
+
+
+    <!--=============== MAIN ===============-->
+    <main class="main">
+        @yield('content')
+    </main>
+
+
+
+
+    @include('layouts.footer')
+
+
+    {{-- 
+    <!-- loader -->
+    <div id="ftco-loader" class="show fullscreen">
+        <svg class="circular" width="48px" height="48px">
+            <circle class="path-bg" cx="24" cy="24" r="22" fill="none" stroke-width="4"
+                stroke="#eeeeee" />
+            <circle class="path" cx="24" cy="24" r="22" fill="none" stroke-width="4"
+                stroke-miterlimit="10" stroke="#F96D00" />
+        </svg>
+    </div> --}}
+
+
+    <!--=============== SCROLL UP ===============-->
+    <a href="#" class="scrollup" id="scroll-up">
+        <i class="bx bx-up-arrow-alt scrollup__icon"></i>
+    </a>
+
+
+
+
+    <!--=============== STYLE SWITCHER ===============-->
+
+    <!--=============== SWIPER JS ===============-->
+    <script src="{{ asset('oldassets/js/swiper-bundle.min.js') }}"></script>
+
+    <!--=============== JS ===============-->
+    <script src="{{ asset('oldassets/js/main.js') }}"></script>
+
+    <!-- Vendor JS Files -->
+    <script src="{{ asset('js/jQuery-3.6.js') }}"></script>
+    <script src="{{ asset('js/utils.min.js') }}"></script>
+    <script src="{{ asset('js/sweet-alert.js') }}"></script>
+    <script src="{{ asset('js/notiflix-aio-3.2.4.min.js') }}"></script>
+
+    @stack('script-reserver-voiture')
+    @stack('script-details')
+    @stack('scripts-inscription-check-countries')
+
+    <script src="{{ asset('js/request-app.js') }}"></script>
+
+
 </body>
+
 </html>
-
-
