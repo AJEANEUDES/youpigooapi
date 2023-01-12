@@ -20,7 +20,7 @@ class Typehebergement extends Model
         return $this->belongsTo(Pays::class, 'pays_id');
     }
 
-    public function ville()
+    public function villes()
     {
         return $this->belongsTo(Ville::class, 'ville_id');
     }

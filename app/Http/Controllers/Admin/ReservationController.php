@@ -96,10 +96,7 @@ class ReservationController extends Controller
             }
         }
 
-        return view('packages.reservations.admin.reservation', compact([
-            'reservations', 'listes_services', 'reservations_annul',
-            'listes_services_annul'
-        ]));
+      
 
         return response()->json(
             [
@@ -109,6 +106,14 @@ class ReservationController extends Controller
             ],
             200
         );
+
+
+        return view('packages.reservations.admin.reservation', compact([
+            'reservations', 'listes_services', 'reservations_annul',
+            'listes_services_annul'
+        ]));
+
+
     }
 
 
@@ -279,12 +284,10 @@ class ReservationController extends Controller
         $reservation = Reservation::findOrFail($request->reservation);
         $reservation->motif_reservation = $request->motif_reservation;
         $reservation->status_annulation = true;
-        $process = $reservation->save();
+        $reservation->save();
 
         //Enregistrement du systeme de log
-        if ($process) saveSysActivityLog(SYS_LOG_SUCCESS, "Annulation de la reservation avec succes dans le système.", Auth::id());
-        else saveSysActivityLog(SYS_LOG_ERROR, "Echec d'annulation de la reservation avec succes dans le système.", Auth::id());
-
+      
         return response()->json([
             "status" => true,
             "reload" => false,
@@ -292,6 +295,7 @@ class ReservationController extends Controller
             "title" => "ANNULATION D'UNE RESERVATION",
             "message" => "La reservation a été annulée avec succes"
         ]);
+        
     }
 
 

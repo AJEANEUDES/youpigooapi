@@ -27,12 +27,12 @@ class Hotel extends Model
         return $this->belongsTo(Pays::class, 'pays_id');
     }
 
-    public function ville()
+    public function villes()
     {
         return $this->belongsTo(Ville::class, 'ville_id');
     }
 
-    public function typehebergement()
+    public function typehebergements()
     {
         return $this->belongsTo(Typehebergement::class, 'typehebergement_id');
     }

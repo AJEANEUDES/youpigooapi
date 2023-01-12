@@ -17,7 +17,7 @@ class CreateTypehebergementsTable extends Migration
             $table->bigIncrements('id_typehebergement');
             $table->string('nom_typehebergement', 200);
             // $table->string('code_typehebergement')->unique();
-            $table->string('description_typehebergement');
+            $table->text('description_typehebergement');
             $table->string('image_typehebergement')->nullable();
             $table->string('slug_typehebergement');
           

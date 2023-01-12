@@ -17,11 +17,11 @@ class isAdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->roles_user == "Admin") {
+        if (Auth::guard() && Auth::check() && Auth::user() && Auth::user()->roles_user == "Admin") {
             return $next($request);
         } else {
-            return redirect()->route('login');
+            // return redirect()->route('login');
+            return redirect('/')->with('error', "Vous n'êtes pas un admin");
         }
     }
-    
 }

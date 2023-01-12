@@ -20,7 +20,7 @@ class CreateCategoriechambresTable extends Migration
             $table->string('slug_categoriechambre');
             $table->string('image_categoriechambre')->nullable();
             $table->string('prix_estimatif_categoriechambre');
-            $table->string('description_categoriechambre');
+            $table->text('description_categoriechambre');
            
            
             $table->bigInteger('created_by')->unsigned()->nullable();

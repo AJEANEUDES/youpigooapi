@@ -29,14 +29,7 @@ class CreateHotelsTable extends Migration
             $table->string('nom_hotel', 200);
             $table->string('slug_hotel', 200);
             // $table->string('code_hotel')->unique();
-            $table->string('description_hotel');
-
-            $table->bigInteger('ville_id')->unsigned()->nullable();
-            $table->bigInteger('pays_id')->unsigned()->nullable();
-            $table->bigInteger('typehebergement_id')->unsigned()->nullable();
-            $table->bigInteger('user_id')->unsigned()->nullable();
-
-
+            $table->text('description_hotel');
             
             $table->string('image_hotel')->nullable();
             $table->boolean('status_hotel')->default(true);
@@ -55,6 +48,14 @@ class CreateHotelsTable extends Migration
             $table->string('numero_if_hotel')->nullable();
             $table->string('longitude_hotel')->nullable();
             $table->string('latitude_hotel')->nullable();
+
+
+            $table->bigInteger('ville_id')->unsigned()->nullable();
+            $table->bigInteger('pays_id')->unsigned()->nullable();
+            $table->bigInteger('typehebergement_id')->unsigned()->nullable();
+            $table->bigInteger('user_id')->unsigned()->nullable();
+
+
             // $table->bigInteger('created_by')->unsigned()->nullable();
             $table->timestamps();
 

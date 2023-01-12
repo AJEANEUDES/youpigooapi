@@ -18,42 +18,62 @@ use Illuminate\Support\Facades\DB;
 
 class PaysController extends Controller
 {
-    public function getPays()
+
+    protected $pays;
+
+    public function guard()
     {
-        $pays = DB::table('pays')
-
-            ->select( 'pays.*')
-            // ->join('users', 'users.id', '=', 'pays.created_by')
-            ->orderByDesc('pays.created_at')
-            ->get();
-
-
-        // $pays = Pays::where('status_pays', true)->get();
-
-
-        // return view('packages.pays.admin.pays', compact([
-        //     'pays'
-
-        // ]));
-        return response()->json(
-            [
-                "status" => 1,
-                "message" => "Liste des Pays",
-                "data" => $pays
-            ],
-            200
-        );
-
-
-
+        return Auth::guard();
     }
 
 
-    // public function getSpecPaysVille(Request $request): JsonResponse
-    // {
-    //     $pays = Pays::find(($request->id_pays));
-    //     return response()->json(['data' => $pays]);
-    // }
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+        $this->pays = $this->guard()->user();
+    }
+
+    public function roleUser()
+    {
+        return Auth::user()->roles_user == "Admin";
+    }
+
+
+
+    public function getPays()
+    {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
+
+
+            $pays = DB::table('pays')
+
+                ->select('pays.*')
+                // ->join('users', 'users.id', '=', 'pays.created_by')
+                ->orderByDesc('pays.created_at')
+                ->get();
+
+            return response()->json(
+                [
+                    "status" => true,
+                    "reload" => true,
+                    "message" => "LISTE DES PAYS",
+                    "pays" => $pays
+                ],
+                200
+            );
+        }
+    }
+
+
 
     public function getSpecPaysVille(Request $request)
     {
@@ -78,58 +98,79 @@ class PaysController extends Controller
     public function infoPays(Request $request, $id_pays)
 
     {
-        $pays = Pays::where("id_pays", $id_pays)->exists();
 
-        if ($pays) {
-
-            $info = Pays::find($id_pays);
-
-
-            $pays = Pays::where('id_pays', ($request->id_pays))
-                ->select(
-
-                    'pays.*',
-                    // 'users.*'
-                )
-
-                // ->join('users', 'users.id', '=', 'pays.created_by')
-                ->orderByDesc('pays.created_at')
-                ->first();
-            // return response()->json($pays);
-
-            return response()->json(
-                [
-                    "status" => 1,
-                    "message" => "Pays trouvé",
-                    "data" => $info
-
-                ],
-                200
-            );
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
         } else {
-            return response()->json(
-                [
-                    "status" => 0,
-                    "message" => "Aucun Pays trouvé",
 
-                ],
-                404
-            );
+            $pays = Pays::where("id_pays", $id_pays)->exists();
+
+            if ($pays) {
+
+                $info = Pays::find($id_pays);
+
+
+                $pays = Pays::where('id_pays', ($request->id_pays))
+                    ->select(
+
+                        'pays.*',
+                        // 'users.*'
+                    )
+
+                    // ->join('users', 'users.id', '=', 'pays.created_by')
+                    ->orderByDesc('pays.created_at')
+                    ->first();
+                // return response()->json($pays);
+
+                return response()->json(
+                    [
+                        "status" => true,
+                        "reload" => true,
+                        "title" => "INFO SUR LE PAYS",
+                        "message" => "Pays trouvé",
+                        "info sur le pays" => $info
+
+                    ],
+                    200
+                );
+            } else {
+                return response()->json(
+                    [
+                        "status" => false,
+                        "reload" => false,
+                        "title" => "INFO SUR LE PAYS",
+                        "message" => "Aucun Pays trouvé",
+
+                    ],
+                    404
+                );
+            }
         }
     }
-
-
-    public function createPays()
-    {
-        return view('packages.pays.admin.create');
-    }
-
 
 
 
 
     public function storePays(Request $request)
     {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
+
+
         $messages = [
 
             "nom_pays.required" => "Le nom du pays est requis",
@@ -154,7 +195,7 @@ class PaysController extends Controller
             "reload" => false,
             "title" => "ENREGISTREMENT DU PAYS",
             "message" => $validator->errors()->first()
-            
+
         ]);
 
 
@@ -163,7 +204,7 @@ class PaysController extends Controller
         $pays->slug_pays = Str::slug("pays-" . $request->nom_pays);
         $pays->description_pays = $request->description_pays;
         $pays->image_pays = $request->image_pays;
-        $pays->status_pays =  $request->status_pays == true;
+        $pays->status_pays = true;
 
         $pays->created_by = Auth::id();
 
@@ -185,29 +226,34 @@ class PaysController extends Controller
             "message" => "Le pays " . $pays->nom_pays . " a été ajoutée avec succes"
         ]);
 
-        // return redirect('Admin/pays/')->with('message', 'Pays ajoutée avec succès');
     }
 
 
-
-    public function editPays($id_pays)
-    {
-        $pays = Pays::find($id_pays);
-        return view('packages.pays.admin.edit', compact('pays'));
     }
+
 
 
 
     public function updatePays(Request $request, $id_pays)
 
     {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
+
+
+
         $messages = [
 
             "nom_pays.required" => "Le nom du pays est requis",
             "description_pays.required" => "La description du pays est requise",
-
-
-
 
         ];
 
@@ -257,79 +303,90 @@ class PaysController extends Controller
             }
 
             $pays->update();
-            return redirect('Admin/pays/')->with('message', 'Pays modifiée avec succès');
 
 
-            // return response()->json([
-            //     "status" => true,
-            //     "reload" => false,
-            //     "title" => "MISE A JOUR DU PAYS",
-            //     "message" => "Le pays " . $pays->nom_pays . " a été modifié avec succès"
-            // ]);
+            return response()->json([
+                "status" => true,
+                "reload" => true,
+                "title" => "MISE A JOUR DU PAYS",
+                "message" => "Le pays " . $pays->nom_pays . " a été modifié avec succès"
+            ]);
 
 
         } else {
 
-            // return response()->json([
-            //     "status" => false,
-            //     "reload" => false,
-            //     "title" => "MISE A JOUR DU PAYS",
-            //     "message" => "Erreur de mise à jour"
-            // ]);
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "title" => "MISE A JOUR DU PAYS",
+                "message" => "Erreur de mise à jour"
+            ]);
 
-            return redirect('Admin/pays/editer-pays/', $pays->id_pays)
-                ->with('message', 'Erreur de mise à jour');
+          
         }
+    }
+
+
     }
 
 
 
     public function deletePays(Request $request, $id_pays)
     {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } 
+        
+        else {
+
+
+
+
         $pays = Pays::where("id_pays", $id_pays)
-        ->exists();
+            ->exists();
 
-    if ($pays) {
+        if ($pays) {
 
 
-        $pays = Pays::findOrFail($id_pays);
-       
-        $destination = 'storage/uploads/' . $pays->image_pays;
+            $pays = Pays::findOrFail($id_pays);
 
-        if (File::exists($destination)) {
-            File::delete($destination);
+            $destination = 'storage/uploads/' . $pays->image_pays;
+
+            if (File::exists($destination)) {
+                File::delete($destination);
+            }
+
+
+            $pays->delete();
+
+            //Enregistrement du systeme de log
+
+            return response()->json([
+                "status" => true,
+                "reload" => true,
+                "title" => "SUPPRESSION DU PAYS",
+                "message" => "Le pays " . $pays->nom_pays . " a été bien supprimé dans le système"
+            ]);
+           
+        } else {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "title" => "SUPPRESSION DU PAYS",
+                "message" => "Pays introuvable. Suppression impossible"
+            ]);
+
+           
         }
-
-       
-        $pays->delete();
-
-        //Enregistrement du systeme de log
-
-        // return response()->json([
-        //     "status" => true,
-        //     "reload" => true,
-        //     "title" => "SUPPRESSION DU PAYS",
-        //     "message" => "Le pays  " . $pays->nom_pays . "été bien supprimé dans le système"
-        // ]);
-        return redirect('Admin/pays/')->with('message', 'Pays  supprimée avec succès');
-
+    }
 
 
     }
-
-    else {
-        // return response()->json([
-        //     "status" => false,
-        //     "reload" => true,
-        //     "title" => "SUPPRESSION DU PAYS",
-        //     "message" => "Pays introuvable"
-        // ]);
-
-        return redirect('Admin/pays/delete-pays/', $pays->id_pays)
-        ->with('message', 'Erreur de suppression du pays');
-
-    }
-}
-
-
 }

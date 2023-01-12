@@ -17,7 +17,7 @@ class isClientMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->roles_user == "Client") {
+        if (Auth::check() && Auth::user() && Auth::user()->roles_user == "Client") {
             return $next($request);
         } else {
             return redirect()->route('login');

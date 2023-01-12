@@ -27,76 +27,96 @@ use Illuminate\Support\Facades\Hash;
 class HotelController extends Controller
 {
 
+    protected $hotel;
 
-    /* HotelController dans le dossier Admin est un controller qui  prend en charge 
-    l'ensemble des opérations qu'on peut effectuer sur un hotel en tant qu'admin
-     ou superadmin*/
+    public function guard()
+    {
+        return Auth::guard();
+    }
+
+
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+        $this->hotel = $this->guard()->user();
+    }
+
+    public function roleUser()
+    {
+        return Auth::user()->roles_user == "Admin";
+    }
+
+
+
 
     public function getHotel()
     {
-
-        // $hotels = DB::table('hotels')
-        //     ->select('hotels.*', 'villes.*', 'pays.*', 'typehebergements.*', 'users.*')
-        //     ->join('villes', 'villes.id_ville', '=', 'hotels.ville_id')
-        //     ->join(
-        //         'typehebergements',
-        //         'typehebergements.id_typehebergement',
-        //         '=',
-        //         'hotels.typehebergement_id'
-        //     )
-
-        //     ->join('pays', 'pays.id_pays', '=', 'hotels.pays_id')
-        //     ->join('users', 'users.id', '=', 'hotels.user_id')
-        //     ->orderByDesc('hotels.created_at')
-        //     ->get();
-
-
-        // $hotels = Hotel::all();
-        //   $hotels_inactives = Hotel::where('roles_user', 'Hotel')->orderByDesc('created_at')->get();
-        // $email_hotel_user = User::where('email_user', 'roles_user')
-        // ->orderByDesc('created_at')->get();
-
-        // $typehebergements = Typehebergement::where('status_typehebergement', true)->get();
-        // $pays = Pays::where('status_pays', true)->get();
-        // // $hotels_inactifs = Hotel::where('status_hotel', false)->get();
-        // $villes = Ville::where('status_ville', true)->get();
-
-        $hotels = Hotel::with("typehebergements")->get();
-        $hotels = Hotel::with("pays")->get();
-        $hotels = Hotel::with("villes")->get();
         
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        }
 
-        // return view('packages.gestionnaires.gestionnaire', compact(['hotels',
-        // 'villes', 'pays', 'typehebergements'
-        //  ]));
+        else {
 
-        // return view('packages.hotels.hotel', compact([
-        //     'hotels',
-        //     'villes', 'pays', 'typehebergements'
-        // ]));
-        // return response()->json($hotels, $typehebergements,  $pays, $villes );
+        $hotels = DB::table('hotels')
+            ->select('hotels.*', 'villes.*', 'pays.*', 'typehebergements.*', 'users.*')
+            ->join('villes', 'villes.id_ville', '=', 'hotels.ville_id')
+            ->join(
+                'typehebergements',
+                'typehebergements.id_typehebergement',
+                '=',
+                'hotels.typehebergement_id'
+            )
 
-        return response()->json(
-            [
-                "status" => 1,
-                "message" => "Liste des Hôtels",
-                "data" => $hotels
-            ],
-            200
-        );
+            ->join('pays', 'pays.id_pays', '=', 'hotels.pays_id')
+            ->join('users', 'users.id', '=', 'hotels.user_id')
+            ->orderByDesc('hotels.created_at')
+            ->get();
+
+
+
+
+            $hotels = Hotel::with("typehebergements")->get();
+            $hotels = Hotel::with("pays")->get();
+            $hotels = Hotel::with("villes")->get();
+
+            return response()->json(
+                [
+                    "status" => true,
+                    "message" => "LISTE DES HOTELS",
+                    "Hôtels" => $hotels
+                ],
+
+
+                200
+            );
+        }
     }
-
-
-    public function profileHotel()
-    {
-        return view('packages.profiles.hotel.profile');
-    }
-
-
 
 
     public function infoHotel(Request $request, $id_hotel)
     {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } 
+        
+        
+        else {
+
+
         $hotel = Hotel::with("typehebergements")->get();
         $hotel = Hotel::with("pays")->get();
         $hotel = Hotel::with("villes")->get();
@@ -107,39 +127,42 @@ class HotelController extends Controller
 
             $info = Hotel::find($id_hotel);
 
-            // $hotel = Hotel::where('id_hotel', ($id_hotel))
-            //     ->select(
+            $hotel = Hotel::where('id_hotel', ($id_hotel))
+                ->select(
 
-            //         'hotels.*',
-            //         'typehebergements.*',
-            //         'villes.*',
-            //         'pays.*',
-            //         'users.*',
-            //     )
+                    'hotels.*',
+                    'typehebergements.*',
+                    'villes.*',
+                    'pays.*',
+                    'users.*',
+                )
 
-            //     ->join('pays', 'pays.id_pays', '=', 'hotels.pays_id')
-            //     ->join('villes', 'villes.id_ville', '=', 'hotels.ville_id')
-            //     ->join(
-            //         'typehebergements',
-            //         'typehebergements.id_typehebergement',
-            //         '=',
-            //         'hotels.typehebergements_id'
-            //     )
-            //     ->join('users', 'users.id', '=', 'hotels.created_by')
+                ->join('pays', 'pays.id_pays', '=', 'hotels.pays_id')
+                ->join('villes', 'villes.id_ville', '=', 'hotels.ville_id')
+                ->join(
+                    'typehebergements',
+                    'typehebergements.id_typehebergement',
+                    '=',
+                    'hotels.typehebergement_id'
+                )
+                ->join('users', 'users.id', '=', 'hotels.user_id')
 
-            //     ->first();
-            // return response()->json($ville);
+                ->first();
 
             return response()->json([
                 "status" => true,
-                "reload" => false,
-                "title" => "INFO SUR  L'HOTEL",
-                "data" => $info
+                "reload" => true,
+                "title" => "INFO SUR L'HOTEL",
+                "Info sur l'hôtel" => $info
             ], 200);
-        } else {
+        } 
+        
+        else {
             return response()->json(
                 [
-                    "status" => 0,
+                    "status" => false,
+                    "reload" => false,
+                    "title" => "INFO SUR L'HOTEL",
                     "message" => "Aucun Hôtel trouvé",
 
                 ],
@@ -149,13 +172,7 @@ class HotelController extends Controller
     }
 
 
-    public function createHotel()
-    {
-        $pays = Pays::where('status_pays', true)->orderByDesc('created_at')->get();
-        $users = User::where('status_user', true)->orderByDesc('created_at')->get();
-        $villes = Ville::where('status_ville', true)->orderByDesc('created_at')->get();
-        $typehebergements = Typehebergement::where('status_typehebergement', true)->orderByDesc('created_at')->get();
-        return view('packages.hotels.create', compact('pays', 'users', 'villes', 'typehebergements'));
+
     }
 
 
@@ -163,6 +180,21 @@ class HotelController extends Controller
 
     public function storeHotel(Request $request)
     {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } 
+        
+        
+        else {
+
+
         $messages = [
 
 
@@ -202,7 +234,6 @@ class HotelController extends Controller
             "pays_id" => "bail|required",
             "user_id" => "bail|required",
             "typehebergement_id" => "bail|required",
-
             "nom_hotel" => "bail|required|max:500",
             "description_hotel" => "bail|required",
             "telephone1_hotel" => "bail|unique:hotels,telephone1_hotel",
@@ -271,7 +302,7 @@ class HotelController extends Controller
         // $hotel->longitude_hotel = $request->longitude_hotel;
         // $hotel->latitude_hotel = $request->latitude_hotel;
         $hotel->prix_estimatif_chambre_hotel = $request->prix_estimatif_chambre_hotel;
-        $hotel->status_hotel =  $request->status_hotel == true ? '1' : '0';
+        $hotel->status_hotel =  true ;
         // $hotel->created_by = Auth::id();
 
         if ($request->hasfile('image_hotel')) {
@@ -285,34 +316,40 @@ class HotelController extends Controller
 
 
 
-        return redirect('Admin/hotels/')->with('message', 'Hotel Ajoutée avec succès');
 
         return response()->json([
             "status" => true,
-            "reload" => false,
+            "reload" => true,
             "redirect_to" => null,
             "title" => "ENREGISTREMENT DE L'HOTEL",
-            "message" => "L'Hôtel " . $hotel->nom_hotel . "a été ajouté avec succes"
+            "message" => "L'Hôtel " . $hotel->nom_hotel . " a été ajouté avec succes"
         ]);
+
     }
 
 
-    public function editHotel(Request $request, $id_hotel)
-    {
-
-        $pays = Pays::where('status_pays', true)->orderByDesc('created_at')->get();
-        $users = User::where('status_user', true)->orderByDesc('created_at')->get();
-        $villes = Ville::where('status_ville', true)->orderByDesc('created_at')->get();
-        $typehebergements = Typehebergement::where('status_typehebergement', true)->orderByDesc('created_at')->get();
-        $hotel = Hotel::find($id_hotel);
-
-        return view('packages.hotels.edit', compact('pays', 'users', 'villes', 'typehebergements', 'hotel'));
     }
-
 
 
     public function updateHotel(Request $request, $id_hotel)
     {
+
+        
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } 
+        
+        
+        else {
+
+
+
 
         $messages = [
 
@@ -333,10 +370,10 @@ class HotelController extends Controller
 
             "prix_estimatif_chambre_hotel.required" => "Le prix estimatif d'une
             chambre à l'hôtel est requis",
-            "telephone1_hotel.required" => "Le numero1 de telephone de l'hôtel est 
+            "telephone1_hotel.required" => "Le numero 1 de telephone de l'hôtel est 
             requis",
-            "telephone1_hotel.required" => "Le numero de telephone est requis",
-            "telephone2_hotel.required" => "Le numero de telephone est requis",
+            "telephone1_hotel.required" => "Le numero 1 de telephone est requis",
+            "telephone2_hotel.required" => "Le numero 2 de telephone est requis",
             "email_hotel.required" => "L'email de l'hôtel est requis",
             "adresse_hotel.required" => "L'adresse de l'hôtel est requise",
 
@@ -484,19 +521,39 @@ class HotelController extends Controller
         }
     }
 
+    }
+
 
 
     public function deleteHotel($id_hotel)
 
     {
 
-        $hotel = Hotel::findOrFail($id_hotel);
-
-
-
-        if ($hotel) 
+         
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } 
         
-        {
+        
+        else {
+
+
+
+        $hotel = Hotel::where("id_hotel", $id_hotel)
+        ->exists();
+
+
+
+        if ($hotel) {   
+
+            $hotel = Hotel::findOrFail($id_hotel);
+
 
             $destination = 'storage/uploads/' . $hotel->image_hotel;
             if (File::exists($destination)) {
@@ -524,7 +581,6 @@ class HotelController extends Controller
 
 
             $hotel->delete();
-            return redirect('Admin/hotels/')->with('message', 'Hotel Supprimé avec succès');
 
             return response()->json([
                 "status" => true,
@@ -533,18 +589,15 @@ class HotelController extends Controller
                 "message" => "L'Hôtel " . $hotel->nom_hotel . " a été bien supprimé dans le système"
 
             ]);
-        } 
-        
-        
-        else {
+        } else {
             return response()->json([
                 "status" => false,
-                "reload" => true,
+                "reload" => false,
                 "title" => "SUPPRESSION DE L'HOTEL",
                 "message" => "Compte Hotel introuvable"
             ], 404);
 
-            return redirect('Admin/hotels/')->with('message', 'Erreur de suppression');
         }
+    }
     }
 }

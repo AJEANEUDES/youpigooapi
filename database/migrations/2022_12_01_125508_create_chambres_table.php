@@ -19,15 +19,15 @@ class CreateChambresTable extends Migration
             $table->bigIncrements('id_chambre');
             $table->string('nom_chambre', 200);
             // $table->string('code_chambre')->unique();
-            $table->string('description_chambre'); //designation
+            $table->text('description_chambre'); //designation
             $table->string('slug_chambre');
             $table->string('image_chambre')->nullable();
             $table->string('classe_chambre');
             $table->string('nombre_lits_chambre');
             $table->string('nombre_places_chambre');
-            $table->float('prix_standard_chambre');
+            $table->string('prix_standard_chambre');
             $table->boolean('status_chambre')->default(true);
-            $table->boolean('status_reserver_chambre')->default(true);
+            $table->boolean('status_reserver_chambre')->default(false);
 
             
             $table->bigInteger('categoriechambre_id')->unsigned();

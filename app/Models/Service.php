@@ -14,7 +14,7 @@ class Service extends Model
     protected $guarded = ['created_at', 'updated_at'];
 
  
-    public function chambre()
+    public function chambres()
     {
         return $this->belongsTo(Chambre::class, 'chambre_id');
     }

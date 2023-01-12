@@ -16,22 +16,22 @@ class Chambre extends Model
     protected $guarded = ['created_at', 'updated_at'];
 
 
-    public function hotel()
+    public function hotels()
     {
         return $this->belongsTo(Hotel::class, 'hotel_id');
     }
 
-    public function typehebergement()
+    public function typehebergements()
     {
         return $this->belongsTo(Typehebergement::class, 'typehebergement_id');
     }
 
-    public function categoriechambre()
+    public function categoriechambres()
     {
         return $this->belongsTo(Categoriechambre::class, 'categoriechambre_id');
     }
 
-    public function ville()
+    public function villes()
     {
         return $this->belongsTo(Ville::class, 'ville_id');
     }

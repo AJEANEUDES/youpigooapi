@@ -17,7 +17,7 @@ class CreatePaysTable extends Migration
             $table->bigIncrements('id_pays');
             $table->string('nom_pays', 200);
             $table->string('slug_pays');
-            $table->string('description_pays');
+            $table->text('description_pays');
             $table->string('image_pays')->nullable();
             $table->boolean('status_pays')->default(true);
             $table->bigInteger('created_by')->unsigned()->nullable();

@@ -20,7 +20,7 @@ class CreateServicesTable extends Migration
             // $table->string('code_service')->unique();
             $table->string('nom_service', 200)->unique();
             $table->string('slug_service');
-            $table->string('description_service');
+            $table->text('description_service');
             $table->bigInteger('chambre_id')->unsigned();
             $table->string('status_service')->default(true);
             $table->bigInteger('created_by')->unsigned()->nullable();

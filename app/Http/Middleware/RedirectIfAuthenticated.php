@@ -33,7 +33,8 @@ class RedirectIfAuthenticated
             
             {
 
-                return redirect()->route('utilisateur.tableaudebord');
+                return response()->json(['status' => 'Connecté en tant que Client']);
+                // return redirect()->route('utilisateur.tableaudebord');
             }
 
             // Permission pour se connecter en tant que hotel
@@ -41,7 +42,9 @@ class RedirectIfAuthenticated
             elseif (Auth::guard($guard)->check() && Auth::user()->roles_user == "Hotel")
            
             {
-                 return redirect()->route('hotel.tableaudebord');
+                return response()->json(['status' => "Connecté en tant qu'Hôtel"]);
+
+                //  return redirect()->route('hotel.tableaudebord');
 
             }
 
@@ -50,8 +53,10 @@ class RedirectIfAuthenticated
 
             elseif (Auth::guard($guard)->check() && Auth::user()->roles_user == "Admin")
             {
-          
-                return redirect()->route('admin.tableaudebord');
+                
+                return response()->json(['status' => "Connecté en tant qu'Admin"]);
+
+                // return redirect()->route('admin.tableaudebord');
 
             }
             
@@ -61,12 +66,24 @@ class RedirectIfAuthenticated
 
             elseif (Auth::guard($guard)->check() && Auth::user()->roles_user == "Superadmin")
             {
-          
-                return redirect()->route('superadmin.tableaudebord');
+                
+                return response()->json(['status' => "Connecté en tant que Super Admin"]);
+
+                // return redirect()->route('superadmin.tableaudebord');
 
             }
             
 
+              // Permission pour se connecter en tant que compagnie
+
+              elseif (Auth::guard($guard)->check() && Auth::user()->roles_user == "Compagnie")
+              {
+                  
+                  return response()->json(['status' => "Connecté en tant que Compagnie"]);
+  
+                  // return redirect()->route('superadmin.tableaudebord');
+  
+              }
 
 
         }

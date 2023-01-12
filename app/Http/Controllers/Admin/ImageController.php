@@ -23,128 +23,50 @@ class ImageController extends Controller
     // LA GESTION DES IMAGES DES CHAMBRES
     // LA GESTION DES IMAGES DES CHAMBRES
 
+    protected $image_chambre, $image_hotel;
+
+    public function guard()
+    {
+        return Auth::guard();
+    }
+
+
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+        $this->image_chambre = $this->guard()->user();
+        $this->image_hotel = $this->guard()->user();
+    }
+
+    public function roleUser()
+    {
+        return Auth::user()->roles_user == "Admin";
+    }
+
 
 
     public function getImageChambre()
     {
-        $chambres = Chambre::where('status_chambre', true)
-            ->select(
-                'chambres.*',
-                'categoriechambres.*',
-                'hotels.*',
-                'typehebergements.*',
-                'villes.*',
-                'pays.*'
-            )
-
-            ->join(
-                'categoriechambres',
-                'categoriechambres.id_categoriechambre',
-                '=',
-                'chambres.categoriechambre_id'
-            )
-
-            ->join(
-                'typehebergements',
-                'typehebergements.id_typehebergement',
-                '=',
-                'chambres.typehebergement_id'
-            )
-
-            ->join('hotels', 'hotels.id_hotel', '=', 'chambres.hotel_id')
-            ->join('villes', 'villes.id_ville', '=', 'chambres.ville_id')
-            ->join('pays', 'pays.id_pays', '=', 'chambres.pays_id')
-            ->join(
-                'typehebergements',
-                'typehebergements.id_typehebergement',
-                '=',
-                'chambres.typehebergement_id'
-            )
-
-            ->orderByDesc('chambres.created_at')
-            ->get();
-
-        $images = Image::select(
-
-            'images.*',
-            'users.*',
-            'chambres.*',
-            'categoriechambres.*',
-            'hotels.*',
-            'typehebergements.*',
-            'villes.*',
-            'pays.*'
-
-        )
-            ->join('chambres', 'chambres.id_chambre', '=', 'images.chambre_id')
-            ->join(
-                'categoriechambres',
-                'categoriechambres.id_categoriechambre',
-                '=',
-                'chambres.categoriechambre_id'
-            )
-
-            ->join(
-                'typehebergements',
-                'typehebergements.id_typehebergement',
-                '=',
-                'chambres.typehebergement_id'
-            )
-
-            ->join('hotels', 'hotels.id_hotel', '=', 'chambres.hotel_id')
-            ->join('villes', 'villes.id_ville', '=', 'chambres.ville_id')
-            ->join('pays', 'pays.id_pays', '=', 'chambres.pays_id')
-            ->join(
-                'typehebergements',
-                'typehebergements.id_typehebergement',
-                '=',
-                'chambres.typehebergement_id'
-            )
-            ->join('users', 'users.id', '=', 'images.created_by')
-            ->orderByDesc('images.created_at')
-            ->get();
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
 
 
-        return response()->json(
-            [
-                "status" => 1,
-                "message" => "Liste des Images de chambres",
-                "data" => $chambres, $images
-            ],
-            200
-        );
-    }
 
-    public function infoImageChambre(Request $request, $id_image)
-    {
-
-        $images = Image::where("id_image", $id_image)->exists();
-
-        if ($images) {
-
-            $images = Image::find($id_image);
-
-            $images = Image::where('id_image', ($request->id_image))
+            $chambres = Chambre::where('status_chambre', true)
                 ->select(
-
-                    'images.*',
                     'chambres.*',
-                    'users.*',
                     'categoriechambres.*',
                     'hotels.*',
                     'typehebergements.*',
-                    'pays.*',
-                    'villes.*'
-                )
-                ->join('chambres', 'chambres.id_chambre', '=', 'images.chambre_id')
-                ->join('pays', 'pays.id_pays', '=', 'chambres.pays_id')
-                ->join('villes', 'villes.id_ville', '=', 'chambres.ville_id')
-
-                ->join(
-                    'typehebergements',
-                    'typehebergements.id_typehebergement',
-                    '=',
-                    'chambres.typehebergement_id'
+                    'villes.*',
+                    'pays.*'
                 )
 
                 ->join(
@@ -154,31 +76,153 @@ class ImageController extends Controller
                     'chambres.categoriechambre_id'
                 )
 
-                ->join('users', 'users.id', '=', 'images.created_by')
-                ->join('hotels', 'hotels.id_hotel', '=', 'chambres.hotel_id')
-                ->orderByDesc('images.created_at')
-                ->first();
+                ->join(
+                    'typehebergements',
+                    'typehebergements.id_typehebergement',
+                    '=',
+                    'chambres.typehebergement_id'
+                )
 
-            // return response()->json($images);
+                ->join('hotels', 'hotels.id_hotel', '=', 'chambres.hotel_id')
+                ->join('villes', 'villes.id_ville', '=', 'chambres.ville_id')
+                ->join('pays', 'pays.id_pays', '=', 'chambres.pays_id')
+                ->join(
+                    'typehebergements',
+                    'typehebergements.id_typehebergement',
+                    '=',
+                    'chambres.typehebergement_id'
+                )
+
+                ->orderByDesc('chambres.created_at')
+                ->get();
+
+            $image_chambre = Image::select(
+
+                'images.*',
+                'users.*',
+                'chambres.*',
+                'categoriechambres.*',
+                'hotels.*',
+                'typehebergements.*',
+                'villes.*',
+                'pays.*'
+
+            )
+                ->join('chambres', 'chambres.id_chambre', '=', 'images.chambre_id')
+                ->join(
+                    'categoriechambres',
+                    'categoriechambres.id_categoriechambre',
+                    '=',
+                    'chambres.categoriechambre_id'
+                )
+
+                ->join(
+                    'typehebergements',
+                    'typehebergements.id_typehebergement',
+                    '=',
+                    'chambres.typehebergement_id'
+                )
+
+                ->join('hotels', 'hotels.id_hotel', '=', 'chambres.hotel_id')
+                ->join('villes', 'villes.id_ville', '=', 'chambres.ville_id')
+                ->join('pays', 'pays.id_pays', '=', 'chambres.pays_id')
+                ->join(
+                    'typehebergements',
+                    'typehebergements.id_typehebergement',
+                    '=',
+                    'chambres.typehebergement_id'
+                )
+                ->join('users', 'users.id', '=', 'images.created_by')
+                ->orderByDesc('images.created_at')
+                ->get();
+
 
             return response()->json(
                 [
                     "status" => 1,
-                    "message" => "Image trouvée",
-                    "data" => $images
-
+                    "message" => "Liste des Images de chambres",
+                    "images de chambres" =>  $image_chambre
                 ],
                 200
             );
-        } else {
-            return response()->json(
-                [
-                    "status" => 0,
-                    "message" => "Aucune image de chambre trouvé",
+        }
+    }
 
-                ],
-                404
-            );
+    public function infoImageChambre(Request $request, $id_image)
+    {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
+
+            $images = Image::where("id_image", $id_image)->exists();
+
+            if ($images) {
+
+                $images = Image::find($id_image);
+
+                $images = Image::where('id_image', ($id_image))
+                    ->select(
+
+                        'images.*',
+                        'chambres.*',
+                        'users.*',
+                        'categoriechambres.*',
+                        'hotels.*',
+                        'typehebergements.*',
+                        'pays.*',
+                        'villes.*'
+                    )
+                    ->join('chambres', 'chambres.id_chambre', '=', 'images.chambre_id')
+                    ->join('pays', 'pays.id_pays', '=', 'chambres.pays_id')
+                    ->join('villes', 'villes.id_ville', '=', 'chambres.ville_id')
+
+                    ->join(
+                        'typehebergements',
+                        'typehebergements.id_typehebergement',
+                        '=',
+                        'chambres.typehebergement_id'
+                    )
+
+                    ->join(
+                        'categoriechambres',
+                        'categoriechambres.id_categoriechambre',
+                        '=',
+                        'chambres.categoriechambre_id'
+                    )
+
+                    ->join('users', 'users.id', '=', 'images.created_by')
+                    ->join('hotels', 'hotels.id_hotel', '=', 'chambres.hotel_id')
+                    ->orderByDesc('images.created_at')
+                    ->first();
+
+                // return response()->json($images);
+
+                return response()->json(
+                    [
+                        "status" => 1,
+                        "message" => "Image trouvée",
+                        "image de chambre" => $images
+
+                    ],
+                    200
+                );
+            } else {
+                return response()->json(
+                    [
+                        "status" => 0,
+                        "message" => "Aucune image de chambre trouvé",
+
+                    ],
+                    404
+                );
+            }
         }
     }
 
@@ -186,66 +230,77 @@ class ImageController extends Controller
 
     public function storeImageChambre(Request $request)
     {
-        $messages = [
-            "chambre.required" => "Veuillez selectionnez une chambre, s'il vous plait",
-            "imageFile.required" => "L'image de la chambre est requise",
-            "imageFile.mimes" => "L'image de la chambre que vous avez selectionnez est invalide",
-            "imageFile.max" => " La taille de l'image de la chambre est trop lourde",
-        ];
 
-        $validator = Validator::make($request->all(), [
-            "chambre" => "bail|required",
-            "imageFile" => "bail|required|mimes:jpeg,jpg,png|max:2048",
-            "imageFile" => "bail|max:2048000",
-            "imageFile.*" => "bail|mimes:jpeg,jpg,png",
-
-        ], $messages);
-
-        if ($validator->fails()) return response()->json([
-            "status" => false,
-            "reload" => false,
-            "title" => "ENREGISTREMENT DE L'IMAGE",
-            "message" => $validator->errors()->first(),
-        ]);
-
-
-        $chambre = Chambre::where('id_chambre', $request->chambre)->first();
-
-
-
-        if ($request->hasFile('path_image')) {
-            foreach ($request->file('path_image') as $file) {
-                $name = $file->getClientOriginalName();
-                $file->move('storage/uploads', $name);
-
-                $finalImage = new Image();
-                $finalImage->pays_id = $request->pays;
-                $finalImage->ville_id = $request->ville;
-                $finalImage->hotel_id = $request->hotel;
-                $finalImage->typehebergement_id = $request->typehebergement;
-                $finalImage->categoriechambre_id = $request->categoriechambre;
-                $finalImage->chambre_id = $request->chambre;
-                $finalImage->hotel_id = $chambre->hotel_id;
-                $finalImage->created_by = Auth::id();
-                $finalImage->path_image = '/storage/uploads/' . $name;
-
-                $finalImage->save();
-            }
-
-
-            return response()->json([
-                "status" => true,
-                "reload" => true,
-                "title" => "ENREGISTREMENT DE L'IMAGE DE LA CHAMBRE",
-                "message" => "L'image de chambre a été ajoutée avec succes"
-            ]);
-        } else {
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
             return response()->json([
                 "status" => false,
                 "reload" => false,
-                "title" => "ENREGISTREMENT DE L'IMAGE  DE LA CHAMBRE",
-                "message" => "Une erreur s'est produite"
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
             ]);
+        } else {
+
+
+            $messages = [
+                "chambre.required" => "Veuillez selectionnez une chambre, s'il vous plait",
+                "imageFile.required" => "L'image de la chambre est requise",
+                "imageFile.mimes" => "L'image de la chambre que vous avez selectionnez est invalide",
+                "imageFile.max" => " La taille de l'image de la chambre est trop lourde",
+            ];
+
+            $validator = Validator::make($request->all(), [
+                "chambre" => "bail|required",
+                "imageFile" => "bail|required|mimes:jpeg,jpg,png|max:2048",
+                "imageFile" => "bail|max:2048000",
+                "imageFile.*" => "bail|mimes:jpeg,jpg,png",
+
+            ], $messages);
+
+            if ($validator->fails()) return response()->json([
+                "status" => false,
+                "reload" => false,
+                "title" => "ENREGISTREMENT DE L'IMAGE DE LA CHAMBRE",
+                "message" => $validator->errors()->first(),
+            ]);
+
+
+            $chambre = Chambre::where('id_chambre', $request->chambre)->first();
+
+            if ($request->hasFile('path_image')) {
+                foreach ($request->file('path_image') as $file) {
+                    $name = $file->getClientOriginalName();
+                    $file->move('storage/uploads', $name);
+
+                    $finalImage = new Image();
+                    $finalImage->pays_id = $request->pays;
+                    $finalImage->ville_id = $request->ville;
+                    $finalImage->hotel_id = $request->hotel;
+                    $finalImage->typehebergement_id = $request->typehebergement;
+                    $finalImage->categoriechambre_id = $request->categoriechambre;
+                    $finalImage->chambre_id = $request->chambre;
+                    $finalImage->hotel_id = $chambre->hotel_id;
+                    $finalImage->created_by = Auth::id();
+                    $finalImage->path_image = '/storage/uploads/' . $name;
+
+                    $finalImage->save();
+                }
+
+
+                return response()->json([
+                    "status" => true,
+                    "reload" => true,
+                    "title" => "ENREGISTREMENT DE L'IMAGE DE LA CHAMBRE",
+                    "message" => "L'image de chambre a été ajoutée avec succes"
+                ]);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "reload" => false,
+                    "title" => "ENREGISTREMENT DE L'IMAGE DE LA CHAMBRE",
+                    "message" => "Une erreur s'est produite"
+                ]);
+            }
         }
     }
 
@@ -253,32 +308,101 @@ class ImageController extends Controller
 
     public function updateImageChambre(Request $request, $id_image)
     {
-        $messages = [
-            "image_chambre.required" => "L'image de la chambre est requise",
-            "image_chambre.mimes" => "L'image de la chambre que vous avez selectionnez est invalide",
-            "image_chambre.max" => "La taille de l'image de la chambre est trop lourde",
-        ];
 
-        $validator = Validator::make($request->all(), [
-            "image_chambre" => "bail|required|mimes:jpeg,jpg,png|max:2048000",
-            "image_chambre" => "bail|max:2048000",
-            "image_chambre.*" => "bail|mimes:jpeg,jpg,png",
-        ], $messages);
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
 
-        if ($validator->fails()) return response()->json([
-            "status" => false,
-            "reload" => false,
-            "title" => "MISE A JOUR DE L'IMAGE",
-            "message" => $validator->errors()->first(),
-        ]);
+
+
+            $messages = [
+                "image_chambre.required" => "L'image de la chambre est requise",
+                "image_chambre.mimes" => "L'image de la chambre que vous avez selectionnez est invalide",
+                "image_chambre.max" => "La taille de l'image de la chambre est trop lourde",
+            ];
+
+            $validator = Validator::make($request->all(), [
+                "image_chambre" => "bail|required|mimes:jpeg,jpg,png|max:2048000",
+                "image_chambre" => "bail|max:2048000",
+                "image_chambre.*" => "bail|mimes:jpeg,jpg,png",
+            ], $messages);
+
+            if ($validator->fails()) return response()->json([
+                "status" => false,
+                "reload" => false,
+                "title" => "MISE A JOUR DE L'IMAGE",
+                "message" => $validator->errors()->first(),
+            ]);
+
+
+            $image = Image::where("id_image", $id_image)->exists();
+
+            if ($image) {
+
+
+                $image = Image::findOrFail($id_image);
+
+                if ($request->hasFile('image_chambre')) {
+                    $destination = 'storage/uploads/' . $image->image_chambre;
+                    if (File::exists($destination)) {
+                        File::delete($destination);
+                    }
+
+                    $image_ch = $request->image_chambre;
+                    $chambre_new_name = time() . '.' . $image_ch->getClientOriginalExtension();
+                    $image_ch->move('storage/uploads/', $chambre_new_name);
+                    $image->path_image = '/storage/uploads/' . $chambre_new_name;
+                }
+
+                $image->update();
+
+
+                return response()->json([
+                    "status" => true,
+                    "reload" => false,
+                    "title" => "MISE A JOUR DE L'IMAGE",
+                    "message" => "L'image de la chambre a été modifiée avec succes"
+                ]);
+            } else {
+                return response()->json(
+                    [
+                        "status" => false,
+                        "title" => "MISE A JOUR DE L'IMAGE",
+                        "message" => "Erreur de mise à jour ",
+
+                    ],
+                    404
+                );
+            }
+        }
+    }
+
+    public function deleteImageChambre(Request $request, $id_image)
+    {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
 
 
         $image = Image::where("id_image", $id_image)->exists();
 
         if ($image) {
 
-
             $image = Image::findOrFail($id_image);
+
 
             if ($request->hasFile('image_chambre')) {
                 $destination = 'storage/uploads/' . $image->image_chambre;
@@ -292,76 +416,30 @@ class ImageController extends Controller
                 $image->path_image = '/storage/uploads/' . $chambre_new_name;
             }
 
-            $image->update();
+            // $cheminFinale = $image->path_image;
+            // unlink(public_path($cheminFinale));
+            $image->delete();
 
 
             return response()->json([
                 "status" => true,
-                "reload" => false,
-                "title" => "MISE A JOUR DE L'IMAGE",
-                "message" => "L'image de la chambre a été modifiée avec succes"
+                "reload" => true,
+                "title" => "SUPPRESSION DE L'IMAGE",
+                "message" => "L'image de la chambre a été bien supprimée dans le système"
             ]);
         } else {
             return response()->json(
                 [
                     "status" => false,
-                    "title" => "MISE A JOUR DE L'IMAGE",
-                    "message" => "Erreur de mise à jour ",
+                    "message" => "Image introuvable",
 
                 ],
                 404
             );
         }
     }
-
-    public function deleteImageChambre(Request $request , $id_image)
-{
-      $image = Image::where("id_image", $id_image)->exists();
-
-    if ($image) {
-   
-        $image = Image::findOrFail($id_image);
-
-        
-        if ($request->hasFile('image_chambre')) {
-            $destination = 'storage/uploads/' . $image->image_chambre;
-            if (File::exists($destination)) {
-                File::delete($destination);
-            }
-
-            $image_ch = $request->image_chambre;
-            $chambre_new_name = time() . '.' . $image_ch->getClientOriginalExtension();
-            $image_ch->move('storage/uploads/', $chambre_new_name);
-            $image->path_image = '/storage/uploads/' . $chambre_new_name;
-        }
-
-        // $cheminFinale = $image->path_image;
-        // unlink(public_path($cheminFinale));
-          $image->delete();
-
-       
-        return response()->json([
-            "status" => true,
-            "reload" => true,
-            "title" => "SUPPRESSION DE L'IMAGE",
-            "message" => "L'image de la chambre a été bien supprimée dans le système"
-        ]);
-
-       
+    
     }
-
-    else {
-        return response()->json(
-            [
-                "status" => false,
-                "message" => "Image introuvable",
-
-            ],
-            404
-        );
-    }
-
-}
 
 
 
@@ -454,10 +532,6 @@ class ImageController extends Controller
             ],
             200
         );
-
-
-
-        
     }
 
 
@@ -518,7 +592,7 @@ class ImageController extends Controller
         ]);
 
 
-             $hotel = Hotel::where('id_hotel', $request->hotel)->first();
+        $hotel = Hotel::where('id_hotel', $request->hotel)->first();
 
 
         if ($request->hasFile('path_image')) {
@@ -538,7 +612,7 @@ class ImageController extends Controller
             }
 
             //Enregistrement du systeme de log
-          
+
             return response()->json([
                 "status" => true,
                 "reload" => true,
@@ -593,7 +667,7 @@ class ImageController extends Controller
             $image->path_image = '/storage/uploads/' . $hotel_new_name;
         }
 
-       $image->save();
+        $image->save();
 
         return response()->json([
             "status" => true,
@@ -1447,7 +1521,4 @@ class ImageController extends Controller
             "message" => "L'image du pays a été bien supprimée dans le système"
         ]);
     }
-
-
-    
 }

@@ -18,15 +18,25 @@ class CreateReservationsTable extends Migration
         Schema::create('reservations', function (Blueprint $table) {
 
             $table->bigIncrements('id_reservation');
-            $table->integer('prix_reservation');
-            $table->text('service_reservation')->nullable();
-            $table->boolean('status_reservation')->default(false);
+            // $table->float('total')->nullable();
+            $table->dateTime('datearrivee')->nullable(); 
+            $table->dateTime('datedepart')->nullable(); 
+            $table->integer('totaladultes')->nullable(); 
+            $table->string('totalenfants')->nullable();
+            $table->string('nombredechambres')->nullable();
+            // $table->string('email_user', 100)->unique();
+            // $table->string('telephone_user', 50)->unique();
+            // $table->string('prefix_user', 10)->nullable();
+            $table->text('message')->nullable();
+            $table->text('note')->nullable();
+            $table->boolean('status_reservation')->default(true);
             $table->boolean('status_annulation')->default(false);
 
 
             $table->bigInteger('chambre_id')->unsigned();
             $table->bigInteger('hotel_id')->unsigned();
-            $table->bigInteger('created_by')->unsigned()->nullable();
+            $table->bigInteger('user_id')->unsigned();
+
             $table->timestamps();
 
             $table->foreign('chambre_id')
@@ -42,7 +52,7 @@ class CreateReservationsTable extends Migration
                 ->onDelete('cascade');
 
 
-            $table->foreign('created_by')
+            $table->foreign('user_id')
                 ->on('users')
                 ->references('id')
                 ->onUpdate('cascade')

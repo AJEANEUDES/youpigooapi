@@ -17,11 +17,11 @@ class isSuperAdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (Auth::check() && Auth::user()->roles_user == "Superadmin") {
+        if (Auth::check() &&  Auth::user() && Auth::user()->roles_user == "Superadmin") {
             return $next($request);
         } else {
-            return redirect()->route('login');
+            // return redirect()->route('login');
+            return redirect('/')->with('error', "Vous n'êtes pas un super admin");
         }
     }
-    
 }

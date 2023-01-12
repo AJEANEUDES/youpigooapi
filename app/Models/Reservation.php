@@ -12,5 +12,28 @@ class Reservation extends Model
     protected $table = 'reservations';
     protected $primaryKey = 'id_reservation';
     protected $guarded = ['created_at', 'updated_at'];
+
+
+
+    // public function users()
+    // {
+    //     return $this->belongsTo(User::class, 'user_id');
+    // }
+
+    
+    public function hotels()
+    {
+        return $this->belongsTo(Hotel::class, 'hotel_id');
+    }
+
+    public function chambres()
+    {
+        return $this->belongsTo(Chambre::class, 'chambre_id');
+    }
+
+
+
+
+
     
 }

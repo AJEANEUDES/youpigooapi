@@ -33,13 +33,18 @@ class SiteWebController extends Controller
 
     public function respondWithToken($token)
     {
+
+
         return response()->json(
             [
+                "title" => "CONNEXION",
+                "message" => "Connexion réussie.",
                 'token' => $token,
                 'token_type' => 'bearer',
                 'token_validity' => $this->guard()->factory()->getTTL() * 60
             ]
         );
+
     }
 
 
@@ -171,19 +176,19 @@ class SiteWebController extends Controller
     }
 
 
-    public function reserverChambre()
-    {
-        $chambres = Chambre::getAllchambres('');
-        $pays = Pays::where('status_pays', true)->orderByDesc('created_at')->get();
-        $villes = Ville::where('status_ville', true)->orderByDesc('created_at')->get();
-        $typehebergements = Typehebergement::where('status_typehebergement', true)->orderByDesc('created_at')->get();
-        $hotels = Hotel::where('status_hotel', true)->orderByDesc('created_at')->get();
-        $categoriechambres = Categoriechambre::where('status_categoriechambre', true)->orderByDesc('created_at')->get();
+    // public function reserverChambre()
+    // {
+    //     $chambres = Chambre::getAllchambres('');
+    //     $pays = Pays::where('status_pays', true)->orderByDesc('created_at')->get();
+    //     $villes = Ville::where('status_ville', true)->orderByDesc('created_at')->get();
+    //     $typehebergements = Typehebergement::where('status_typehebergement', true)->orderByDesc('created_at')->get();
+    //     $hotels = Hotel::where('status_hotel', true)->orderByDesc('created_at')->get();
+    //     $categoriechambres = Categoriechambre::where('status_categoriechambre', true)->orderByDesc('created_at')->get();
 
-        return view('pages.reserverChambre', compact([
-            'chambres', 'pays', 'hotels', 'typehebergements', 'villes', 'categoriechambres'
-        ]));
-    }
+    //     return view('pages.reserverChambre', compact([
+    //         'chambres', 'pays', 'hotels', 'typehebergements', 'villes', 'categoriechambres'
+    //     ]));
+    // }
 
 
     //Recherche d'une chambre
@@ -440,12 +445,17 @@ class SiteWebController extends Controller
             "email_user.required" => "Votre adresse mail est requise",
             "email_user.email" => "Votre adresse mail est invalide",
             "email_user.max" => "Votre adresse mail est trop longue",
+            "prefix_user.required" => "le code téléphonique de votre est requis",
             "telephone_user.required" => "Votre numéro de telephone est requis",
+            "telephone_user.unique" => "Votre numéro de telephone est déjà utilisé et enrégistré dans la base",
             "telephone_user.min" => "Votre numero de telephone est court",
+            "telephone_user.regex" => "Votre numero de telephone est invalide",
             "adresse_user.required" => "Votre adresse de residence est requis",
             "adresse_user.max" => "Votre adresse de residence est trop long",
             "pays_user.required" => "Votre pays de residence est requis",
             "pays_user.max" => "Votre pays de residence est trop long",
+            "ville_user.required" => "Votre ville de residence est requise",
+            "ville_user.max" => "Votre ville de residence est trop longue",
             "roles_user.required" => "Le Type de votre compte est requis",
             "roles_user.max" => "La valeur du type est trop longue",
             "password.required" => "Le mot de passe est requis",
@@ -457,17 +467,18 @@ class SiteWebController extends Controller
             "nom_user" => "bail|required|max:50|",
             "prenoms_user" => "bail|required|max:50",
             "email_user" => "bail|required|email|max:50|unique:users,email_user",
-            "telephone_user" => "bail|required|min:8|unique:users,telephone_user",
+            "prefix_user" => "bail|required|min:2|max:10",
+            "telephone_user" => "bail|required|min:8|max:10|regex:/^([0-9\s\-\+\(\)]*)$/|unique:users,telephone_user",
             "adresse_user" => "bail|required|max:500",
             "pays_user" => "bail|required|max:500",
+            "ville_user" => "bail|required|max:500",
             "roles_user" => "bail|required|max:30",
             "password" => "bail|required|min:8|same:confirmation_password",
+
         ], $messages);
 
         //Send failed response if request is not valid
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->$messages()], 200);
-        }
+       
 
 
         if ($validator->fails()) return response()->json([
@@ -484,6 +495,7 @@ class SiteWebController extends Controller
         $client->telephone_user = $request->telephone_user;
         $client->adresse_user = $request->adresse_user;
         $client->pays_user = $request->pays_user;
+        $client->ville_user = $request->ville_user;
         $client->prefix_user = $request->prefix_user;
 
         $client->roles_user = $request->roles_user;
@@ -520,10 +532,11 @@ class SiteWebController extends Controller
 
         return response()->json([
             "status" => true,
-            "reload" => false,
-            "redirect_to" => url('/login'),
+            "reload" => true,
+            // "redirect_to" => url('/login'),
             "title" => "INSCRIPTION",
             "message" => "Mr/Mlle " . $client->nom_user . " " . $client->prenoms_user . ". Votre compte a été crée avec succes"
+
         ]);
     }
 
@@ -533,6 +546,7 @@ class SiteWebController extends Controller
     public function connexion(Request $request)
     {
 
+        
         $messages = [
 
             "email_user.required" => "Votre adresse mail est requise",
@@ -548,6 +562,27 @@ class SiteWebController extends Controller
 
         ], $messages);
 
+
+     
+
+        //validité du token(1j = 24h et 1h =60min donc token_validity = 24*60)
+
+        $token_validity = 60;
+
+        $this->guard()->factory()->setTTL($token_validity);
+
+        //condition de fonctionnement
+        if (!$token = $this->guard()->attempt($validator->validated()) ) {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "title" => "CONNEXION",
+                'erreur' => "Adresse Email ou mot de passe incorrect"
+
+            ], 401);
+        }
+
+        
         if ($validator->fails()) {
 
             return response()->json([
@@ -556,25 +591,6 @@ class SiteWebController extends Controller
                 "title" => "CONNEXION",
                 "message" => $validator->errors()->first()
             ]);
-        }
-
-
-
-        //validité du token(1j = 24h et 1h =60min donc token_validity = 24*60)
-
-        $token_validity = 24 * 60;
-
-        $this->guard()->factory()->setTTL($token_validity);
-
-        //condition de fonctionnement
-        if (!$token = $this->guard()->attempt($validator->validated())) {
-            return response()->json([
-                "status" => false,
-                "reload" => false,
-                "title" => "CONNEXION",
-                'erreur' => "Adresse Email ou mot de passe incorrect"
-
-            ], 401);
         }
 
         return $this->respondWithToken($token);
@@ -647,7 +663,26 @@ class SiteWebController extends Controller
 
     public function profile()
     {
-        return response()->json($this->guard()->user());
+        if (!$this->guard()->user())
+        {
+            return response()->json([
+                "status" => true,
+                "reload" => true,
+                "redirect_to" => null,
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé",
+            ]);
+        }
+         else
+         
+        return response()->json([
+            "status" => true,
+            "reload" => true,
+            "title" => "INFORMATIONS DE PROFIL",
+            "Informations" => $this->guard()->user()
+            
+            ]
+        );
     }
 
 
@@ -689,4 +724,7 @@ class SiteWebController extends Controller
 
 
     }
+
+
+
 }

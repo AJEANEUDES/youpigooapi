@@ -16,7 +16,7 @@ class CreateImagesTable extends Migration
         Schema::create('images', function (Blueprint $table) {
 
             $table->bigIncrements('id_image');
-            $table->string('path_image');
+            $table->string('path_image'); //chemin de l'image
             $table->bigInteger('pays_id')->unsigned()->nullable();
             $table->bigInteger('ville_id')->unsigned()->nullable();
             $table->bigInteger('typehebergement_id')->unsigned()->nullable();

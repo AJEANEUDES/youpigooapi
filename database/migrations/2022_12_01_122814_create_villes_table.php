@@ -22,7 +22,7 @@ class CreateVillesTable extends Migration
             $table->bigInteger('pays_id')->unsigned()->nullable();
            
             $table->boolean('status_ville')->default(true);
-            $table->string('description_ville')->nullable();
+            $table->text('description_ville')->nullable();
             $table->bigInteger('created_by')->unsigned()->nullable();
 
             $table->timestamps();

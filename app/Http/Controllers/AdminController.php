@@ -30,6 +30,19 @@ class AdminController extends Controller
         return Auth::guard();
     }
 
+    public function roleUser()
+    {
+        return Auth::user()->roles_user == "Admin";
+    }
+
+
+
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+        $this->admin = $this->guard()->user();
+    }
+
 
 
     public function tableauDeBord()
@@ -41,298 +54,365 @@ class AdminController extends Controller
          réglémentaire..*/
         // $admins = User::where('roles_user', 'Admin')->orderByDesc('created_at')->get();
 
-        $categoriechambres = Categoriechambre::count();
-        $chambres = Chambre::count();
-        $images_chambres = Chambre::count();
-        $images_hotels = Hotel::count();
-        $images_categoriechambres = Categoriechambre::count();
-        $images_typehebergements = Typehebergement::count();
-        $typehebergements = Typehebergement::count();
-        $images_villes = Ville::count();
-        $images_pays = Pays::count();
-        $hotels = Hotel::count();
-        $admins = User::where('roles_user', 'Admin')->count();
-        $villes = Ville::count();
-        $pays = Pays::count();
-        $services = Service::count();
-        $clients = User::where('roles_user', 'Client')->count();
-        $gestionnaires_hotels = User::where('roles_user', 'Hotel')->count();
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        }
+         else {
 
-        // A mettre au niveau du superadmin loo
-        // $admins = User::where('roles_user', 'Admin')->count();
+            $categoriechambres = Categoriechambre::count();
+            $chambres = Chambre::count();
+            $images_chambres = Chambre::count();
+            $images_hotels = Hotel::count();
+            $images_categoriechambres = Categoriechambre::count();
+            $images_typehebergements = Typehebergement::count();
+            $typehebergements = Typehebergement::count();
+            $images_villes = Ville::count();
+            $images_pays = Pays::count();
+            $hotels = Hotel::count();
+            $admins = User::where('roles_user', 'Admin')->count();
+            $villes = Ville::count();
+            $pays = Pays::count();
+            $services = Service::count();
+            $clients = User::where('roles_user', 'Client')->count();
+            $gestionnaires_hotels = User::where('roles_user', 'Hotel')->count();
+            $gestionnaires_compagnies = User::where('roles_user', 'Compagnie')->count();
 
-        $reservations = Reservation::where('status_annulation', false)
-            ->where('status_reservation', true)
-            ->count();
+            // A mettre au niveau du superadmin loo
+            // $admins = User::where('roles_user', 'Admin')->count();
 
-        $factures = Facture::count();
+            $reservations = Reservation::where('status_annulation', false)
+                ->where('status_reservation', true)
+                ->count();
 
-        return view('pages.admin.tableaudebord', compact([
-            'images_pays',
-            'hotels',
-            'gestionnaires_hotels',
-            'villes',
-            'pays',
-            'services',
-            'clients',
-            'admins',
-            'reservations',
-            'factures',
-            'images_villes',
-            'images_typehebergements',
-            'typehebergements',
-            'images_categoriechambres',
-            'images_hotels',
-            'images_chambres',
-            'chambres',
-            'categoriechambres',
-            'admins',
+            $factures = Facture::count();
 
 
+            return response()->json([
+                "status" => true,
+                "reload" => true,
+                "title" => "TABLEAU DE BORD ADMINISTRATEUR",
 
+                "administrateurs" => $admins,
+                'images_pays' => $images_pays,
+                'hotels' => $hotels,
+                'gestionnaires_hotels'  => $gestionnaires_hotels,
+                'gestionnaires_compagnies'  => $gestionnaires_compagnies,
+                'villes' => $villes,
+                'pays' => $pays,
+                'services' => $services,
+                'clients' => $clients,
+                'reservations' => $reservations,
+                'factures' => $factures,
+                'images_villes' => $images_villes,
+                'images_typehebergements' => $images_typehebergements,
+                'images_categoriechambres' => $images_categoriechambres,
+                'images_hotels' => $images_hotels,
+                'images_chambres' => $images_chambres,
+                'typehebergements' => $typehebergements,
+                'chambres' => $chambres,
+                'categoriechambres' => $categoriechambres,
 
-        ]));
-    }
-
-
-    public function __construct()
-    {
-        $this->middleware('auth:api');
-        $this->admin = $this->guard()->user();
-    }
-
-    public function profileAdmin()
-    {
-        return view('packages.profiles.admin.profile');
+            ]);
+        }
     }
 
 
 
     public function getAdmin()
     {
-        $admins = User::where('roles_user', 'Admin')->orderByDesc('created_at')->get();
-        // return view('packages.admins.admin', compact('admins'));
-        return response()->json($admins);
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } elseif (!Auth::guard()->user()) {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
+
+            $admins = User::where('roles_user', 'Admin')->orderByDesc('created_at')->get();
+            return response()->json([
+                "status" => true,
+                "reload" => true,
+                "title" => "LISTE DES ADMINISTRATEURS",
+                "administrateurs" => $admins
+
+            ]);
+        }
     }
 
 
     public function infoAdmin(Request $request, $id_admin)
     {
-        $admin = User::where("id", $id_admin)->exists();
 
-        if ($admin) {
-
-            $info = User::find($id_admin);
-
-            $admin = User::where('roles_user', ($request->roles_user = 'Admin'))->orderByDesc('created_at')->first();
-            $admin = User::where('id', ($request->id_admin))->orderByDesc('created_at')->first();
-            // return response()->json($admin);
-
-            return response()->json(
-                [
-                    "status" => 1,
-                    "message" => "Administrateur trouvé",
-                    "data" => $info
-
-                ],
-                200
-            );
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
         } else {
-            return response()->json(
-                [
-                    "status" => 0,
-                    "message" => "Aucun administrateur trouvé",
 
-                ],
-                404
-            );
+
+
+
+            $admin = User::where("id", $id_admin)->exists();
+
+            if ($admin) {
+
+                $info = User::find($id_admin);
+
+                $admin = User::where('roles_user', ($request->roles_user = 'Admin'))->orderByDesc('created_at')->first();
+                $admin = User::where('id', ($request->id_admin))->orderByDesc('created_at')->first();
+                // return response()->json($admin);
+
+                return response()->json(
+                    [
+                        "status" => true,
+                        "message" => "Administrateur trouvé",
+                        "Information sur l'administrateur" => $info
+
+                    ],
+                    200
+                );
+            } else {
+                return response()->json(
+                    [
+                        "status" => 0,
+                        "message" => "Aucun administrateur trouvé",
+
+                    ],
+                    404
+                );
+            }
         }
-    }
-
-
-
-    public function createAdmin()
-    {
-        return view('packages.admins.create');
     }
 
 
 
     public function storeAdmin(Request $request)
     {
-        $messages = [
-            "nom_user.required" => "Le nom est requis",
-            "prenoms_user.required" => "Le prenoms est n'est pas requis",
-            "email_user.required" => "L'email est requis",
-            "email_user.unique" => "Cet email existe deja",
-            "password.required" => "Le mot de passe est requis",
-            "password.min" => "Le mot de passe est trop court",
-            "password.same" => "Les mots de passes ne sont pas identiques",
-            "telephone_user.required" => "Le numero de telephone est requis",
-            "telephone_user.unique" => "Ce numero de telephone existe deja",
-            "adresse_user.required" => "L'adresse est requise",
-            "vile_user.required" => "La ville est requise",
-            "pays_user.required" => "Le pays est requis",
-        ];
-
-        $validator = Validator::make($request->all(), [
-            "nom_user" => "bail|required",
-            "prenoms_user" => "bail|nullable",
-            "email_user" => "bail|required|unique:users,email_user",
-            "password" => "bail|required|min:8|same:confirmation_password",
-            "telephone_user" => "bail|required|unique:users,telephone_user",
-            "adresse_user" => "bail|required",
-            "ville_user" => "bail|required",
-            "pays_user" => "bail|required",
 
 
-        ], $messages);
-
-        if ($validator->fails()) return response()->json([
-            "status" => false,
-            "errors" => $validator->errors(),
-            "reload" => false,
-            "redirect_to" => null,
-            "title" => "ENREGISTREMENT DE L'ADMIN",
-            "message" => $validator->errors()->first(),
-        ], 400);
-
-        $admin = new User();
-        $admin->nom_user = $request->nom_user;
-        $admin->prenoms_user = $request->prenoms_user;
-        $admin->email_user = $request->email_user;
-        $admin->adresse_user = $request->adresse_user;
-        $admin->telephone_user = $request->telephone_user;
-        $admin->roles_user = "Admin";
-        $admin->password = Hash::make($request->password);
-        $admin->status_user =  $request->status_user == true;
-
-        if ($request->hasfile('image_user')) {
-            $file = $request->file('image_user');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->move('storage/uploads/', $filename);
-            $admin->image_user = $filename;
-        }
-
-
-        $admin->save();
-
-
-        // return redirect('Admin/administrateur/')->with('message', 'Administrateur Ajoutée avec succès');
-
-        return response()->json([
-            "status" => true,
-            "reload" => false,
-            "redirect_to" => null,
-            "title" => "ENREGISTREMENT DE L'ADMIN",
-            "message" => "L'admin " . $admin->nom_user . " " . $admin->prenoms_user . " a été ajouté avec succes"
-        ]);
-    }
-
-
-    public function showAdmin(User $admin)
-    {   
-        return $admin;
-    }
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
 
 
 
-    public function editAdmin($id_admin)
-    {
-        $admin = User::find($id_admin);
-        return view('packages.admins.edit', compact('admin'));
-    }
+            $messages = [
+                "nom_user.required" => "Le nom est requis",
+                "prenoms_user.required" => "Le prenoms est n'est pas requis",
+                "email_user.required" => "L'email est requis",
+                "email_user.unique" => "Cet email existe deja",
+                "password.required" => "Le mot de passe est requis",
+                "password.min" => "Le mot de passe est trop court",
+                "password.same" => "Les mots de passes ne sont pas identiques",
+                "prefix_user.required" => "le code téléphonique de votre est requis",
+                "telephone_user.required" => "Votre numéro de telephone est requis",
+                "telephone_user.unique" => "Votre numéro de telephone est déjà utilisé et enrégistré dans la base",
+                "telephone_user.min" => "Votre numero de telephone est court",
+                "telephone_user.regex" => "Votre numero de telephone est invalide",
+                "adresse_user.required" => "L'adresse est requise",
+                "ville_user.required" => "Votre ville de residence est requise",
+                "ville_user.max" => "Votre ville de residence est trop longue",
+                "pays_user.required" => "Votre pays de residence est requis",
+                "pays_user.max" => "Votre pays de residence est trop long",
+            ];
+
+            $validator = Validator::make($request->all(), [
+                "nom_user" => "bail|required",
+                "prenoms_user" => "bail|nullable",
+                "email_user" => "bail|required|unique:users,email_user",
+                "password" => "bail|required|min:8|same:confirmation_password",
+                "prefix_user" => "bail|required|min:2|max:10",
+                "telephone_user" => "bail|required|min:8|max:10|regex:/^([0-9\s\-\+\(\)]*)$/|unique:users,telephone_user",
+                "adresse_user" => "bail|required",
+                "pays_user" => "bail|required|max:500",
+                "ville_user" => "bail|required|max:500",
 
 
-    public function updateAdmin(Request $request, $id_admin)
-    {
-        $messages = [
-            "nom_user.required" => "Votre nom est requis",
-            "nom_user.max" => "Votre nom est trop long",
-            "prenoms_user.required" => "Votre prenom est requis",
-            "prenoms_user.max" => "Votre prenom est trop long",
-            "adresse_user.required" => "L'adresse est requise",
-            "adresse_user.max" => "L'adresse est trop longue",
-            "telephone_user.required" => "Le numero de telephone est requis",
-            "telephone_user.min" => "Le numero de telephone est invalide",
-            "email_user.required" => "Votre adresse mail est requise",
-            "email_user.email" => "Votre adresse mail est invalide",
-            "email_user.max" => "Votre adresse mail est trop longue",
-            "vile_user.required" => "La ville est requise",
-            "pays_user.required" => "Le pays est requis",
-        ];
+            ], $messages);
 
-        $validator = Validator::make($request->all(), [
-            "nom_user" => "bail|required|max:50",
-            "prenoms_user" => "bail|required|max:50",
-            "adresse_user" => "bail|required|max:500",
-            "telephone_user" => "bail|required|min:8|",
-            "email_user" => "bail|required|email|max:50|",
-            "ville_user" => "bail|required",
-            "pays_user" => "bail|required",
+            if ($validator->fails()) return response()->json([
+                "status" => false,
+                "errors" => $validator->errors(),
+                "reload" => false,
+                "redirect_to" => null,
+                "title" => "ENREGISTREMENT DE L'ADMIN",
+                "message" => $validator->errors()->first(),
+            ], 400);
 
-        ], $messages);
-
-        if ($validator->fails()) return response()->json([
-            "status" => false,
-            "reload" => false,
-            "redirect_to" => null,
-            "title" => "MISE A JOUR DU COMPTE",
-            "message" => $validator->errors()->first()
-        ]);
-
-        $admin = User::where("id", $id_admin)->exists();
-
-        if ($admin) {
-
-            $admin = User::findOrFail($id_admin);
+            $admin = new User();
             $admin->nom_user = $request->nom_user;
             $admin->prenoms_user = $request->prenoms_user;
             $admin->email_user = $request->email_user;
-            $admin->telephone_user = $request->telephone_user;
             $admin->adresse_user = $request->adresse_user;
+            $admin->telephone_user = $request->telephone_user;
+            $admin->prefix_user = $request->prefix_user;
             $admin->ville_user = $request->ville_user;
             $admin->pays_user = $request->pays_user;
-            $admin->prefix_user = $request->prefix_user;
-            $admin->roles_user = $request->roles_user;
-            $admin->status_user =  $request->status_user == true ? '1' : '0';
-
-
-
+            $admin->roles_user = "Admin";
+            $admin->password = Hash::make($request->password);
+            $admin->status_user = true;
 
             if ($request->hasfile('image_user')) {
-
-                $destination = 'storage/uploads/' . $admin->image_user;
-                if (File::exists($destination)) {
-                    File::delete($destination);
-                }
-
                 $file = $request->file('image_user');
                 $filename = time() . '.' . $file->getClientOriginalExtension();
                 $file->move('storage/uploads/', $filename);
                 $admin->image_user = $filename;
             }
 
-            $admin->update();
 
+            $admin->save();
+
+
+            // return redirect('Admin/administrateur/')->with('message', 'Administrateur Ajoutée avec succès');
 
             return response()->json([
                 "status" => true,
                 "reload" => false,
-                "redirect_to" => false,
+                "redirect_to" => null,
+                "title" => "ENREGISTREMENT DE L'ADMIN",
+                "message" => "L'admin " . $admin->nom_user . " " . $admin->prenoms_user . " a été ajouté avec succes"
+            ]);
+        }
+    }
+
+
+    // public function showAdmin(User $admin)
+    // {
+    //     return $admin;
+    // }
+
+
+
+
+    public function updateAdmin(Request $request, $id_admin)
+    {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
+            $messages = [
+                "nom_user.required" => "Votre nom est requis",
+                "nom_user.max" => "Votre nom est trop long",
+                "prenoms_user.required" => "Votre prenom est requis",
+                "prenoms_user.max" => "Votre prenom est trop long",
+                "adresse_user.required" => "L'adresse est requise",
+                "adresse_user.max" => "L'adresse est trop longue",
+                "prefix_user.required" => "le code téléphonique de votre est requis",
+                "telephone_user.required" => "Le numero de telephone est requis",
+                "telephone_user.min" => "Le numero de telephone est invalide",
+                "email_user.required" => "Votre adresse mail est requise",
+                "email_user.email" => "Votre adresse mail est invalide",
+                "email_user.max" => "Votre adresse mail est trop longue",
+                "pays_user.required" => "Votre pays de residence est requis",
+                "pays_user.max" => "Votre pays de residence est trop long",
+                "ville_user.required" => "Votre ville de residence est requise",
+                "ville_user.max" => "Votre ville de residence est trop longue",
+            ];
+
+            $validator = Validator::make($request->all(), [
+                "nom_user" => "bail|required|max:50",
+                "prenoms_user" => "bail|required|max:50",
+                "adresse_user" => "bail|required|max:500",
+                "prefix_user" => "bail|required|min:2|max:10",
+                "telephone_user" => "bail|required|min:8|",
+                "email_user" => "bail|required|email|max:50|",
+                "ville_user" => "bail|required",
+                "pays_user" => "bail|required",
+
+            ], $messages);
+
+            if ($validator->fails()) return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => null,
                 "title" => "MISE A JOUR DU COMPTE",
-                "message" => "Mr/Mlle " . $admin->nom_user . " " . $admin->prenoms_user . " votre compte a été modifié avec succes"
+                "message" => $validator->errors()->first()
             ]);
 
-            // return redirect('Admin/administrateur/')->with('message', 'Administrateur modifiée avec succès');
-        } else {
-            return response()->json(
-                [
-                    "status" => 0,
-                    "message" => "Erreur de mise à jour ",
+            $admin = User::where("id", $id_admin)->exists();
 
-                ],
-            );
+            if ($admin) {
+
+                $admin = User::findOrFail($id_admin);
+                $admin->nom_user = $request->nom_user;
+                $admin->prenoms_user = $request->prenoms_user;
+                $admin->email_user = $request->email_user;
+                $admin->telephone_user = $request->telephone_user;
+                $admin->adresse_user = $request->adresse_user;
+                $admin->ville_user = $request->ville_user;
+                $admin->pays_user = $request->pays_user;
+                $admin->prefix_user = $request->prefix_user;
+                $admin->roles_user = $request->roles_user;
+                $admin->status_user =  $request->status_user == true ? '1' : '0';
+
+
+
+
+                if ($request->hasfile('image_user')) {
+
+                    $destination = 'storage/uploads/' . $admin->image_user;
+                    if (File::exists($destination)) {
+                        File::delete($destination);
+                    }
+
+                    $file = $request->file('image_user');
+                    $filename = time() . '.' . $file->getClientOriginalExtension();
+                    $file->move('storage/uploads/', $filename);
+                    $admin->image_user = $filename;
+                }
+
+                $admin->update();
+
+
+                return response()->json([
+                    "status" => true,
+                    "reload" => true,
+                    "redirect_to" => false,
+                    "title" => "MISE A JOUR DU COMPTE",
+                    "message" => "Mr/Mlle " . $admin->nom_user . " " . $admin->prenoms_user . " votre compte a été modifié avec succes"
+                ]);
+            } else {
+                return response()->json(
+                    [
+                        "status" => 0,
+                        "message" => "Erreur de mise à jour ",
+
+                    ],
+                );
+            }
         }
     }
 
@@ -346,6 +426,10 @@ class AdminController extends Controller
             "prenoms_user.max" => "Votre prenom est trop long",
             "adresse_user.required" => "L'adresse est requise",
             "adresse_user.max" => "L'adresse est trop longue",
+            "pays_user.required" => "Votre pays de residence est requis",
+            "pays_user.max" => "Votre pays de residence est trop long",
+            "ville_user.required" => "Votre ville de residence est requise",
+            "ville_user.max" => "Votre ville de residence est trop longue",
             "telephone_user.required" => "Le numero de telephone est requis",
             "telephone_user.min" => "Le numero de telephone est invalide",
             "email_user.required" => "Votre adresse mail est requise",
@@ -359,6 +443,8 @@ class AdminController extends Controller
             "adresse_user" => "bail|required|max:50",
             "telephone_user" => "bail|required|min:8|unique:users,telephone_user",
             "email_user" => "bail|required|email|max:50|unique:users,email_user",
+            "ville_user" => "bail|required|max:500",
+
         ], $messages);
 
         if ($validator->fails()) return response()->json([
@@ -376,6 +462,7 @@ class AdminController extends Controller
         $admin->telephone_user = $request->telephone_user;
         $admin->adresse_user = $request->adresse_user;
         $admin->pays_user = $request->pays_user;
+        $admin->ville_user = $request->ville_user;
         $admin->prefix_user = $request->prefix_user;
         $admin->image_user = $request->image_user;
 
@@ -460,30 +547,101 @@ class AdminController extends Controller
 
     public function deleteAdmin($id_admin)
     {
-        $admin = User::findOrFail($id_admin);
-        if ($admin) {
-            $destination = 'storage/uploads/' . $admin->image_user;
-            if (File::exists($destination)) {
-                File::delete($destination);
-            }
 
-            $admin->delete();
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
+            ]);
+        } else {
+
+            $admin = User::findOrFail($id_admin);
+            if ($admin) {
+                $destination = 'storage/uploads/' . $admin->image_user;
+                if (File::exists($destination)) {
+                    File::delete($destination);
+                }
+
+                $admin->delete();
+                return response()->json([
+                    "status" => true,
+                    "reload" => true,
+                    "title" => "SUPPRESSION DE L'ADMIN",
+                    "message" => "L'admin " . $admin->nom_user . " " . $admin->prenoms_user . " a été bien supprimé dans le système"
+                ], 200);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "reload" => true,
+                    "title" => "SUPPRESSION DE L'ADMIN",
+                    "message" => "Administrateur introuvable; erreur de suppression"
+                ], 404);
+            }
+        }
+    }
+
+
+    public function profileClient(Request $request)
+    {
+
+
+        $client = User::where('id', ($request->id_client))->orderByDesc('created_at')->first();
+
+        return response()->json(
+            [
+                "status" => true,
+                "reload" => false,
+                "redirect_to" => null,
+                "title" => "INFORMATIONS SUR LE PROFIL DU CLIENT",
+                "message" => "Informations sur le profil du client " . $client->nom_user . " " . $client->prenoms_user . "",
+
+            ],
+
+            200
+
+        );
+
+        // return response()->json(
+        //     [
+        //         "status" => 1,
+        //         "message" => "Informations sur le profil du client",
+        //         "datas" => $client = Auth::user()
+        //     ],
+        //     200
+        // );
+
+
+    }
+
+
+
+
+    public function profileAdmin()
+    {
+
+
+
+        if (!$this->guard()->user()) {
             return response()->json([
                 "status" => true,
                 "reload" => true,
-                "title" => "SUPPRESSION DE L'ADMIN",
-                "message" => "L'admin " . $admin->nom_user . " " . $admin->prenoms_user . " a été bien supprimé dans le système"
-            ],200);
-            return redirect('Admin/administrateur/')->with('message', 'Administrateur Supprimé avec succès');
-        } else {
-            return response()->json([
-                "status" => false,
-                "reload" => true,
-                "title" => "SUPPRESSION DE L'ADMIN",
-                "message" => "Administrateur introuvable; erreur de suppression"
-            ], 404);
+                "redirect_to" => null,
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé",
+            ]);
+        } else
 
-            return redirect('Admin/administrateur/')->with('message', 'Erreur de suppression');
-        }
+            return response()->json(
+                [
+                    "status" => true,
+                    "reload" => true,
+                    "title" => "INFORMATIONS DE MON PROFIL",
+                    "Informations" => $this->guard()->user()
+
+                ]
+            );
     }
 }
