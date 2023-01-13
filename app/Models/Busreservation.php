@@ -5,12 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Reservation extends Model
+class Busreservation extends Model
 {
     use HasFactory;
 
-    protected $table = 'reservations';
-    protected $primaryKey = 'id_reservation';
+    protected $table = 'busreservations';
+    protected $primaryKey = 'id_busreservation';
     protected $guarded = ['created_at', 'updated_at'];
 
 
@@ -21,19 +21,13 @@ class Reservation extends Model
     }
 
     
-    public function hotels()
+    public function buses()
     {
-        return $this->belongsTo(Hotel::class, 'hotel_id');
+        return $this->belongsTo(Bus::class, 'bus_id');
     }
 
-    public function chambres()
-    {
-        return $this->belongsTo(Chambre::class, 'chambre_id');
-    }
+   
 
 
 
-
-
-    
 }

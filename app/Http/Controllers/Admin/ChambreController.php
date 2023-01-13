@@ -148,7 +148,7 @@ class ChambreController extends Controller
                         "status" => true,
                         "reload" => true,
                         "title" => "INFORMATION SUR LA CHAMBRE",
-                        "data" =>  $info,
+                        "information sur la chambre" =>  $info,
 
 
                     ],
@@ -397,13 +397,13 @@ class ChambreController extends Controller
 
                 return response()->json([
                     "status" => true,
-                    "reload" => false,
+                    "reload" => true,
                     "title" => "MISE A JOUR DE LA CHAMBRE",
                     "message" => "La chambre  " . $chambre->nom_chambre . " a été modifiée avec succes"
                 ]);
             } else {
                 return response()->json([
-                    "status" => true,
+                    "status" => false,
                     "reload" => false,
                     "title" => "MISE A JOUR DE LA CHAMBRE",
                     "message" => "Erreur de mise à jour"
@@ -451,7 +451,7 @@ class ChambreController extends Controller
 
                 return response()->json([
                     "status" => false,
-                    "reload" => true,
+                    "reload" => false,
                     "title" => "SUPPRESSION DE LA CHAMBRE",
                     "message" => "Chambre introuvable"
                 ]);

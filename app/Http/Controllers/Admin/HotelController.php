@@ -85,6 +85,7 @@ class HotelController extends Controller
             $hotels = Hotel::with("typehebergements")->get();
             $hotels = Hotel::with("pays")->get();
             $hotels = Hotel::with("villes")->get();
+            $hotels = Hotel::with("users")->get();
 
             return response()->json(
                 [

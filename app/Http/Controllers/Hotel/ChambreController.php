@@ -20,8 +20,39 @@ use Illuminate\Support\Facades\Validator;
 
 class ChambreController extends Controller
 {
+     protected $chambre;
+
+    public function guard()
+    {
+        return Auth::guard();
+    }
+
+
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+        $this->chambre = $this->guard()->user();
+    }
+
+    public function roleUser()
+    {
+        return Auth::user()->roles_user == "Hotel";
+    }
+
+
     public function getChambre()
     {
+        
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
 
         $chambres = Chambre::with("categoriechambres")->get();
         $chambres = Chambre::with("hotels")->get();
@@ -30,30 +61,24 @@ class ChambreController extends Controller
         $chambres = Chambre::with("villes")->get();
         $chambres_reservees = Chambre::where('status_reserver_chambre', true)->orderByDesc('created_at')->get();
 
-        // $categoriechambres = Categoriechambre::where('status_categoriechambre', true)->get();
-        // $hotels = Hotel::where('status_hotel', true)->get();
-        // $typehebergements = Typehebergement::where('status_typehebergement', true)->get();
-        // $villes = Ville::where('status_ville', true)->get();
-        // $pays = Pays::where('status_pays', true)->get();
+        $categoriechambres = Categoriechambre::where('status_categoriechambre', true)->get();
+        $hotels = Hotel::where('status_hotel', true)->get();
+        $typehebergements = Typehebergement::where('status_typehebergement', true)->get();
+        $villes = Ville::where('status_ville', true)->get();
+        $pays = Pays::where('status_pays', true)->get();
 
-        // $chambres = Chambre::where('status_chambre', true)->orderByDesc('created_at')->get();
+        $chambres = Chambre::where('status_chambre', true)->orderByDesc('created_at')->get();
 
-        // return view('packages.chambres.admin.chambre', compact([
-        //     'hotels', 'categoriechambres', 'chambres',
-        //     'typehebergements', 'chambres_reservees',
-        //     'villes', 'pays'
-
-        // ]));
-
+      
       
         return response()->json(
             [
                 "status" => true,
-                "reload" => false,
+                "reload" => true,
                 "title" => "LISTE DES CHAMBRES",
-                "datachambre" =>  $chambres,
+                "Chambres" =>  $chambres,
                 "message" => "LISTE DES CHAMBRES RESERVEES",
-                "datachambrereservees" => $chambres_reservees,
+                "Chambres reservées" => $chambres_reservees,
 
 
             ],
@@ -62,21 +87,9 @@ class ChambreController extends Controller
         );
 
 
+   
+    }
 
-        // return response()->json(
-        //     [
-        //         "status" => true,
-        //         "reload" => false,
-        //         "title" => "LISTE DES CHAMBRES",
-        //         "datachambre" =>  $chambres,
-        //         "message" => "LISTE DES CHAMBRES RESERVEES",
-        //         "datachambrereservees" => $chambres_reservees,
-
-
-        //     ],
-        //     200
-
-        // );
     }
 
 
@@ -90,6 +103,19 @@ class ChambreController extends Controller
 
     public function infoChambre(Request $request, $id_chambre)
     {
+
+         
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
+
         $chambre = Chambre::with("categoriechambres")->get();
         $chambre = Chambre::with("hotels")->get();
         $chambre = Chambre::with("typehebergements")->get();
@@ -101,31 +127,31 @@ class ChambreController extends Controller
 
             $info = chambre::find($id_chambre);
 
+            $chambre = chambre::where('id_chambre', ($request->id_chambre))
+            ->select(
+                'chambres.*',
+                'categoriechambres.*',
+                'typehebergements.*',
+                'hotels.*',
+                'villes.*',
+                'pays.*'
+            )
 
-            // $chambre = chambre::where('id_chambre', ($request->id_chambre))
-            //     ->select(
-            //         'chambres.*',
-            //         'categoriechambres.*',
-            //         'typehebergements.*',
-            //         'hotels.*',
-            //         'villes.*',
-            //         'pays.*'
-            //     )
-
-            //     ->join('categoriechambres', 'categoriechambres.id_categoriechambre', '=', 'chambres.categoriechambre_id')
-            //     ->join('typehebergements', 'typehebergements.id_typehebergement', '=', 'chambres.typehebergement_id')
-            //     ->join('hotels', 'hotels.id_hotel', '=', 'chambres.hotel_id')
-            //     ->join('villes', 'villes.id_ville', '=', 'chambres.ville_id')
-            //     ->join('pays', 'pays.id_pays', '=', 'chambres.pays_id')
-            //     ->first();
+            ->join('categoriechambres', 'categoriechambres.id_categoriechambre', '=', 'chambres.categoriechambre_id')
+            ->join('typehebergements', 'typehebergements.id_typehebergement', '=', 'chambres.typehebergement_id')
+            ->join('hotels', 'hotels.id_hotel', '=', 'chambres.hotel_id')
+            ->join('villes', 'villes.id_ville', '=', 'chambres.ville_id')
+            ->join('pays', 'pays.id_pays', '=', 'chambres.pays_id')
+            ->first();
 
 
             return response()->json(
                 [
                     "status" => true,
-                    "reload" => false,
+                    "reload" => true,
                     "title" => "INFORMATION SUR LA CHAMBRE",
-                    "data" =>  $info,
+                    "information sur la chambre" =>  $info,
+
 
 
                 ],
@@ -136,7 +162,7 @@ class ChambreController extends Controller
 
             return response()->json(
                 [
-                    "status" => true,
+                    "status" => false,
                     "reload" => false,
                     "title" => "INFORMATION SUR LA CHAMBRE",
                     "message" =>  "Aucune chambre trouvé",
@@ -149,24 +175,6 @@ class ChambreController extends Controller
         }
     }
 
-
-
-    public function createChambre()
-    {
-        $pays = Pays::where('status_pays', true)->orderByDesc('created_at')->get();
-        $hotels = Hotel::where('status_hotel', true)->orderByDesc('created_at')->get();
-        $categoriechambres = Categoriechambre::where('status_categoriechambre', true)->orderByDesc('created_at')->get();
-        $villes = Ville::where('status_ville', true)->orderByDesc('created_at')->get();
-        $typehebergements = Typehebergement::where('status_typehebergement', true)->orderByDesc('created_at')->get();
-
-        return view('packages.chambres.admin.create', compact(
-            'pays',
-            'categoriechambres',
-            'villes',
-            'typehebergements',
-            'hotels'
-
-        ));
     }
 
 
@@ -174,6 +182,19 @@ class ChambreController extends Controller
 
     public function storeChambre(Request $request)
     {
+
+             
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
+
         $messages = [
 
             "categoriechambre_id.required" => "La catégorie de la chambre est requise",
@@ -239,7 +260,8 @@ class ChambreController extends Controller
         $chambre->nombre_places_chambre = $request->nombre_places_chambre;
         $chambre->prix_standard_chambre = $request->prix_standard_chambre;
         $chambre->image_chambre = $request->image_chambre;
-
+        $chambre->status_chambre =   true;
+        $chambre->status_reserver_chambre = false;
         $chambre->categoriechambre_id = ($request->categoriechambre_id);
         $chambre->typehebergement_id = $request->typehebergement_id;
         $chambre->hotel_id = ($request->hotel_id);
@@ -259,41 +281,35 @@ class ChambreController extends Controller
 
         $chambre->save();
 
-        return redirect('Admin/chambres/')->with('message', 'Chambre Ajoutée avec succès');
 
         return response()->json([
             "status" => true,
-            "reload" => false,
+            "reload" => true,
             "title" => "ENREGISTREMENT DE LA CHAMBRE",
             "message" => "La chambre " . $chambre->nom_chambre . " a été ajoutée avec succes"
         ]);
     }
 
-
-    public function editChambre(Request $request, $id_chambre)
-    {
-
-        $hotels = Hotel::where('status_hotel', true)->orderByDesc('created_at')->get();
-        $pays = Pays::where('status_pays', true)->orderByDesc('created_at')->get();
-        $categoriechambres = Categoriechambre::where('status_categoriechambre', true)->orderByDesc('created_at')->get();
-        $villes = Ville::where('status_ville', true)->orderByDesc('created_at')->get();
-        $typehebergements = Typehebergement::where('status_typehebergement', true)->orderByDesc('created_at')->get();
-        $chambre = Chambre::find($id_chambre);
-
-        return view('packages.chambres.admin.edit', compact(
-            'pays',
-            'categoriechambres',
-            'villes',
-            'typehebergements',
-            'hotels',
-            'chambre'
-        ));
     }
+
 
 
     public function updateChambre(Request $request, $id_chambre)
 
     {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
+
+
         $messages = [
             "categoriechambre_id.required" => "La catégorie de la chambre est requise",
             "typehebergement_id.required" => "Le type d'hebergement de la chambre est requis",
@@ -369,6 +385,7 @@ class ChambreController extends Controller
             $chambre->nombre_places_chambre = $request->nombre_places_chambre;
             $chambre->prix_standard_chambre = $request->prix_standard_chambre;
             $chambre->status_chambre =  $request->status_chambre == true ? '1' : '0';
+            $chambre->status_reserver_chambre =  $request->status_reserver_chambre == true ? '1' : '0';
 
 
             if ($request->hasfile('image_chambre')) {
@@ -387,19 +404,19 @@ class ChambreController extends Controller
 
             $chambre->update();
 
-            return redirect('Admin/chambres/')->with('message', 'Chalbre modifiée avec succès');
 
             return response()->json([
                 "status" => true,
-                "reload" => false,
+                "reload" => true,
                 "title" => "MISE A JOUR DE LA CHAMBRE",
-                "message" => "La chambre  " . $chambre->nom_chambre . " a été ajoutée avec succes"
+                "message" => "La chambre  " . $chambre->nom_chambre . " a été modifiée avec succes"
+                 
             ]);
 
 
         } else {
             return response()->json([
-                "status" => true,
+                "status" => false,
                 "reload" => false,
                 "title" => "MISE A JOUR DE LA CHAMBRE",
                 "message" => "Erreur de mise à jour"
@@ -407,11 +424,26 @@ class ChambreController extends Controller
         }
     }
 
+    }
+
 
 
 
     public function deleteChambre(Request $request, $id_chambre)
     {
+        
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
+
+
         $chambre = Chambre::where("id_chambre", $id_chambre)->exists();
 
         if ($chambre) {
@@ -430,7 +462,6 @@ class ChambreController extends Controller
                 "message" => "La chambre  " . $chambre->nom_chambre . " a été bien supprimée dans le système"
             ]);
 
-            return redirect('Admin/chambres/')->with('message', 'Chambre Supprimée avec succès');
         } else {
 
             return response()->json([
@@ -441,4 +472,6 @@ class ChambreController extends Controller
             ]);
         }
     }
+}
+
 }

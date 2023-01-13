@@ -63,6 +63,11 @@ class User extends Authenticatable implements JWTSubject
     //     return $this->roles()-> whereIn('name',$roles)->first();
     // }
 
+    public function createdby()
+    {
+        return $this->belongsTo(User::class, 'id');
+    }
+
     
     public function getJWTIdentifier()
     {

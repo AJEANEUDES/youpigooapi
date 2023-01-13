@@ -113,25 +113,20 @@ class ImageController extends Controller
                     'categoriechambres',
                     'categoriechambres.id_categoriechambre',
                     '=',
-                    'chambres.categoriechambre_id'
+                    'images.categoriechambre_id'
                 )
 
                 ->join(
                     'typehebergements',
                     'typehebergements.id_typehebergement',
                     '=',
-                    'chambres.typehebergement_id'
+                    'images.typehebergement_id'
                 )
 
-                ->join('hotels', 'hotels.id_hotel', '=', 'chambres.hotel_id')
-                ->join('villes', 'villes.id_ville', '=', 'chambres.ville_id')
-                ->join('pays', 'pays.id_pays', '=', 'chambres.pays_id')
-                ->join(
-                    'typehebergements',
-                    'typehebergements.id_typehebergement',
-                    '=',
-                    'chambres.typehebergement_id'
-                )
+                ->join('hotels', 'hotels.id_hotel', '=', 'images.hotel_id')
+                ->join('villes', 'villes.id_ville', '=', 'images.ville_id')
+                ->join('pays', 'pays.id_pays', '=', 'images.pays_id')
+              
                 ->join('users', 'users.id', '=', 'images.created_by')
                 ->orderByDesc('images.created_at')
                 ->get();

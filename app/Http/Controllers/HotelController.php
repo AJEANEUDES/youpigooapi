@@ -25,14 +25,52 @@ class HotelController extends Controller
     //HotelController dans le dossier Hotel renseigne les informations sur un hôtel visible par
     //l'hôtel (hotel_user) lui même en question
 
+    protected $hotel;
+
+    public function guard()
+    {
+        return Auth::guard();
+    }
+
+    public function roleUser()
+    {
+        return Auth::user()->roles_user == "Hotel";
+    }
+
+
+
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+        $this->hotel = $this->guard()->user();
+    }
+
+
+
     public function tableauDeBord()
     {
 
-        $hotel_user_id = Auth::id();
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
+
+
+        $hotel_user = Auth::user();
+        // $hotel_user = User::find(Auth::user()->roles_user="Hotel");
+        // $categoriechambres = Categoriechambre::where('categoriechambres.created_by', $user->categoriechambre_id)->count();
+        // $categoriechambres = Categoriechambre::where('categoriechambres_created_by', $hotel_user->id)->count();
+        // $categoriechambres = Auth::user()->createdby()->count();
+        // $categoriechambres = Categoriechambre::where('categoriechambres', $hotel_user->id)->count();
         $categoriechambres = Categoriechambre::count();
         $chambres = Chambre::count();
         $images_chambres = Chambre::count();
-        $images_hotels = Hotel::count();
         $images_categoriechambres = Categoriechambre::count();
         $services = Service::count();
         $reservations = Reservation::where('status_annulation', false)
@@ -41,19 +79,26 @@ class HotelController extends Controller
 
         $factures = Facture::count();
 
-        return view('pages.hotel.tableaudebord', compact([
 
-            'services',
-            'reservations',
-            'factures',
-            'images_categoriechambres',
-            'images_hotels',
-            'images_chambres',
-            'chambres',
-            'categoriechambres',
+        return response()->json([
+            "status" => true,
+            "reload" => true,
+            "title" => "TABLEAU DE BORD HOTEL",
 
-        ]));
+            "Informations sur le compte "=>$hotel_user->nom_user." ".$hotel_user->prenoms_user,
+            'services' => $services,
+            'reservations' => $reservations,
+            'factures' => $factures,
+            'images_categoriechambres' => $images_categoriechambres,
+            'images_chambres' => $images_chambres,
+            'chambres' => $chambres,
+            'categoriechambres' => $categoriechambres,
+
+        ]);
+
     }
+
+}
 
 
 

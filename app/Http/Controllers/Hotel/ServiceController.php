@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Auth;
 class ServiceController extends Controller
 {
 
-    protected $admin;
+    protected $service;
 
     public function guard()
     {
@@ -23,20 +23,42 @@ class ServiceController extends Controller
     public function __construct()
     {
         $this->middleware('auth:api');
-        $this->admin = $this->guard()->user();
+        $this->service = $this->guard()->user();
     }
 
 
     public function getServiceChambre()
     {
-        $chambres = Chambre::where('status_chambre', true)->orderByDesc('created_at')->get();
 
-        $services = Service::select('services.*', 'chambres.*')
-            ->join('chambres', 'chambres.id_chambre', '=', 'services.chambres_id')
-            ->orderByDesc('services.created_at')
-            ->get();
-        // return view('packages.services.admin.service', compact(['services', 'chambres']));
-        return response()->json($chambres, $services);
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        } else {
+
+
+            $services = Service::with("chambres")->get();
+            $services = Chambre::where('status_chambre', true)->orderByDesc('created_at')->get();
+
+            $services = Service::select('services.*', 'chambres.*')
+                ->join('chambres', 'chambres.id_chambre', '=', 'services.chambre_id')
+                ->orderByDesc('services.created_at')
+                ->get();
+
+
+            return response()->json(
+                [
+                    "status" => true,
+                    "message" => "LISTE DES SERVICES LIES A LA CHAMBRE",
+                    "Services" => $services
+                ],
+                200
+            );
+        }
     }
 
 
@@ -51,38 +73,50 @@ class ServiceController extends Controller
     public function infoServiceChambre(Request $request,  $id_service)
     {
 
-        $service = Service::where("id_service", $id_service)->exists();
 
-        if ($service) {
-
-            $info = Service::find($id_service);
-
-
-            $service = Service::where('id_service', ($request->id_service))
-                ->select('services.*', 'chambres.*', 'users.*')
-                ->join('chambres', 'chambres.id_chambre', '=', 'services.chambre_id')
-                ->join('users', 'users.id', '=', 'services.created_by')
-                ->orderByDesc('services.created_at')
-                ->first();
-
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
             return response()->json([
-                "status" => true,
+                "status" => false,
                 "reload" => false,
-                "title" => "INFO SUR  LE SERVICE",
-                "data" => $info, $service
-            ], 200);
-
-            // return response()->json($service);
-
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
         } else {
-            return response()->json(
-                [
-                    "status" => 0,
-                    "message" => "Aucun Service trouvé",
 
-                ],
-                404
-            );
+
+            $service = Service::with("chambres")->get();
+            $service = Service::where("id_service", $id_service)->exists();
+
+            if ($service) {
+
+                $info = Service::find($id_service);
+
+
+                $service = Service::where('id_service', ($id_service))
+                    ->select('services.*', 'chambres.*', 'users.*')
+                    ->join('chambres', 'chambres.id_chambre', '=', 'services.chambre_id')
+                    ->join('users', 'users.id', '=', 'services.created_by')
+                    ->orderByDesc('services.created_at')
+                    ->first();
+
+                return response()->json([
+                    "status" => true,
+                    "reload" => true,
+                    "title" => "INFO SUR  LE SERVICE DE LA CHAMBRE",
+                    "informations sur le service de chambre" => $info
+                ], 200);
+            } else {
+                return response()->json(
+                    [
+                        "status" => false,
+                        "title" => "INFO SUR  LE SERVICE DE LA CHAMBRE",
+                        "message" =>  "Aucun service de chambre trouvé",
+
+                    ],
+                    404
+                );
+            }
         }
     }
 
@@ -90,43 +124,58 @@ class ServiceController extends Controller
 
     public function storeServiceChambre(Request $request)
     {
-        $messages = [
-            "nom_service.required" => "Le nom du service est requis",
-            "nom_service.max" => "Le nom du service est trop long",
-            "nom_service.unique" => "Ce service existe deja dans le système",
-            "description_service.required" => "La description du service est requise",
-            "chambre_id.required" => "La chambre du service est requise",
-        ];
 
-        $validator = Validator::make($request->all(), [
-            "nom_service" => "bail|required|max:200|unique:services,nom_service",
-            "chambre_id" => "bail|required",
-        ], $messages);
-
-        if ($validator->fails()) return response()->json([
-            "status" => false,
-            "reload" => false,
-            "redirect_to" => null,
-            "title" => "ENREGISTREMENT DU SERVICE",
-            "message" => $validator->errors()->first(),
-        ]);
-
-        $service = new Service();
-        $service->nom_service = $request->nom_service;
-        $service->slug_service = Str::slug("service-" . $request->nom_service);
-        $service->status_service = true;
-        $service->chambre_id = $request->chambre_id;
-        $service->created_by = Auth::id();
-        $service->save();
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        } else {
 
 
-        return response()->json([
-            "status" => true,
-            "reload" => false,
-            "redirect_to" => null,
-            "title" => "ENREGISTREMENT DU SERVICE",
-            "message" => "Le service " . $service->nom_service . " a été ajouté avec succes"
-        ]);
+            $messages = [
+                "nom_service.required" => "Le nom du service est requis",
+                "nom_service.max" => "Le nom du service est trop long",
+                "nom_service.unique" => "Ce service existe deja dans le système",
+                "description_service.required" => "La description du service est requise",
+                "chambre_id.required" => "La chambre du service est requise",
+            ];
+
+            $validator = Validator::make($request->all(), [
+                "nom_service" => "bail|required|max:200|unique:services,nom_service",
+                "chambre_id" => "bail|required",
+                "description_service" => "bail|required",
+
+            ], $messages);
+
+            if ($validator->fails()) return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => null,
+                "title" => "ENREGISTREMENT DU SERVICE",
+                "message" => $validator->errors()->first(),
+            ]);
+
+            $service = new Service();
+            $service->nom_service = $request->nom_service;
+            $service->slug_service = Str::slug("service-" . $request->nom_service);
+            $service->description_service = $request->description_service;
+            $service->status_service = true;
+            $service->chambre_id = $request->chambre_id;
+            $service->created_by = Auth::id();
+            $service->save();
+
+
+            return response()->json([
+                "status" => true,
+                "reload" => true,
+                "title" => "ENREGISTREMENT DU SERVICE",
+                "message" => "Le service " . $service->nom_service . " a été ajouté avec succes"
+            ]);
+        }
     }
 
 
@@ -134,63 +183,67 @@ class ServiceController extends Controller
 
     public function updateServiceChambre(Request $request, $id_service)
     {
-        $messages = [
-            "nom_service.required" => "Le nom du service est requis",
-            "nom_service.max" => "Le nom du service est trop long",
-            "nom_service.unique" => "Ce service existe deja dans le système",
-            "description_service.required" => "La description du service est requise",
 
-        ];
-
-        $validator = Validator::make($request->all(), [
-            "nom_service" => "bail|required|max:200",
-            "description_service" => "bail|required|",
-        ], $messages);
-
-        if ($validator->fails()) return response()->json([
-            "status" => false,
-            "reload" => false,
-            "redirect_to" => null,
-            "title" => "MISE A JOUR DU SERVICE",
-            "message" => $validator->errors()->first(),
-        ]);
-
-
-
-
-        // 
-
-
-        $service = Service::where("id_service", $id_service)->exists();
-
-
-        if ($service) {
-
-
-
-
-            $service = service::findOrFail($request->id_service);
-            $service->nom_service = $request->nom_service;
-            $service->slug_service = Str::slug("service-" . $request->nom_service);
-            $service->status_service = true;
-            $service->chambre_id = $request->chambre_id;
-            $service->update();
-
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
             return response()->json([
-                "status" => true,
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        } else {
+
+            $messages = [
+                "nom_service.required" => "Le nom du service est requis",
+                "nom_service.max" => "Le nom du service est trop long",
+                "nom_service.unique" => "Ce service existe deja dans le système",
+                "description_service.required" => "La description du service est requise",
+
+            ];
+
+            $validator = Validator::make($request->all(), [
+                "nom_service" => "bail|required|max:200",
+                "description_service" => "bail|required|",
+            ], $messages);
+
+            if ($validator->fails()) return response()->json([
+                "status" => false,
                 "reload" => false,
                 "redirect_to" => null,
                 "title" => "MISE A JOUR DU SERVICE",
-                "message" => "Le service " . $service->nom_service . " a été mise à jour avec succes"
+                "message" => $validator->errors()->first(),
             ]);
-        } else {
-            return response()->json(
-                [
-                    "status" => 0,
-                    "message" => "Erreur de mise à jour ",
 
-                ],
-            );
+            // 
+
+            $service = Service::where("id_service", $id_service)->exists();
+
+            if ($service) {
+
+                $service = service::findOrFail($request->id_service);
+                $service->nom_service = $request->nom_service;
+                $service->slug_service = Str::slug("service-" . $request->nom_service);
+                $service->description_service = $request->description_service;
+                $service->status_service = true;
+                $service->chambre_id = $request->chambre_id;
+                $service->update();
+
+                return response()->json([
+                    "status" => true,
+                    "reload" => true,
+                    "title" => "MISE A JOUR DU SERVICE",
+                    "message" => "Le service " . $service->nom_service . " a été mise à jour avec succes"
+                ]);
+            } else {
+                return response()->json(
+                    [
+                        "status" => false,
+                        "message" => "Erreur de mise à jour ",
+
+                    ],
+                );
+            }
         }
     }
 
@@ -198,32 +251,41 @@ class ServiceController extends Controller
     public function deleteServiceChambre(Request $request, $id_service)
     {
 
-        $service = Service::findOrFail($id_service);
-
-
-
-        if ($service) {
-
-
-            $service = Service::findOrFail($request->id_service);
-            $service->delete();
-
-
-            return response()->json([
-                "status" => true,
-                "reload" => true,
-                "title" => "SUPPRESSION DU SERVICE",
-                "message" => "Le service " . $service->nom_service . " a été bien supprimé dans le système"
-            ]);
-        } else {
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
             return response()->json([
                 "status" => false,
-                "reload" => true,
-                "title" => "SUPPRESSION DU SERVICE",
-                "message" => "Service introuvable"
-            ], 404);
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        } else {
 
-            return redirect('Admin/services/')->with('message', 'Erreur de suppression');
-        }
+            $service = Service::where("id_service", $id_service)->exists();
+
+            if ($service) {
+
+
+                $service = Service::findOrFail($id_service);
+                $service->delete();
+
+
+                return response()->json([
+                    "status" => true,
+                    "reload" => true,
+                    "title" => "SUPPRESSION DU SERVICE",
+                    "message" => "Le service " . $service->nom_service . " a été bien supprimé dans le système"
+                ]);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "reload" => false,
+                    "title" => "SUPPRESSION DU SERVICE",
+                    "message" => "Service introuvable"
+                ], 404);
+            }
+
     }
+}
+
 }

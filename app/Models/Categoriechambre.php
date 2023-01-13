@@ -17,8 +17,12 @@ class Categoriechambre extends Model
 
     //fonction getAllCategorieChambres pour voir la liste de tous les catégories de chambres 
     //
+    public function createdby()
+    {
+        return $this->belongsToMany(Categoriechambre::class, 'id_categoriechambre');
+    }
 
-
+    
     public static function getAllCategorieChambres(
 
         $search_keyword,

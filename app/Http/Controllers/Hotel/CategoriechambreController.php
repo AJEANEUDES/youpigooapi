@@ -18,8 +18,39 @@ use Illuminate\Support\Facades\Auth;
 class CategoriechambreController extends Controller
 {
 
+    protected $categoriechambre;
+
+    public function guard()
+    {
+        return Auth::guard();
+    }
+
+
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+        $this->categoriechambre = $this->guard()->user();
+    }
+
+    public function roleUser()
+    {
+        return Auth::user()->roles_user == "Hotel";
+    }
+
+
     public function getCategorieChambre()
     {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
 
         $categoriechambres = Categoriechambre::select('categoriechambres.*')
             ->orderByDesc('categoriechambres.created_at')
@@ -36,9 +67,24 @@ class CategoriechambreController extends Controller
         ]);
     }
 
+    }
+
 
     public function infoCategorieChambre(Request $request, $id_categoriechambre)
     {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
+
+
         $categoriechambre = Categoriechambre::where(
             "id_categoriechambre",
             $id_categoriechambre
@@ -59,7 +105,8 @@ class CategoriechambreController extends Controller
                 "status" => true,
                 "reload" => false,
                 "title" => "INFO SUR LA CATEGORIE DE CHAMBRE",
-                "data" => $info
+                "info sur la categorie de la chambre" => $info
+
             ], 200);
         } else {
             return response()->json(
@@ -67,7 +114,8 @@ class CategoriechambreController extends Controller
                     "status" => false,
                     "reload" => false,
                     "title" => "INFO SUR LA CATEGORIE DE CHAMBRE",
-                    "message" => "Aucune catégorie n'a été trouvée.",
+                    "message" => "Aucune catégorie de chambre n'a été trouvée.",
+
 
                 ],
                 404
@@ -75,15 +123,21 @@ class CategoriechambreController extends Controller
         }
     }
 
-
-    public function createCategorieChambre()
-    {
-        return view('packages.categoriechambres.admin.create');
     }
-
 
     public function storeCategoriechambre(Request $request)
     {
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
+
         $messages = [
             "libelle_categoriechambre.required" => "Le libelle de la catégorie de la chambre est requis",
             "libelle_categoriechambre.max" => "Le libelle de la catégorie de la chambre est trop long",
@@ -127,7 +181,7 @@ class CategoriechambreController extends Controller
         $categoriechambre->description_categoriechambre = $request->description_categoriechambre;
         $categoriechambre->slug_categoriechambre = Str::slug("categoriechambre-" . $request->libelle_categoriechambre);
         $categoriechambre->prix_estimatif_categoriechambre = $request->prix_estimatif_categoriechambre;
-        $categoriechambre->status_categoriechambre =  $request->status_categoriechambre == true ? '1' : '0';
+        $categoriechambre->status_categoriechambre =  true ;
 
         if ($request->hasfile('image_categoriechambre')) {
             $file = $request->file('image_categoriechambre');
@@ -148,20 +202,26 @@ class CategoriechambreController extends Controller
             "message" => "la catégorie de chambre  " . $categoriechambre->libelle_categoriechambre . " a été ajoutée avec succes"
         ]);
 
-        return redirect('Admin/categoriechambres/')->with('message', 'Catégorie de chambre ajoutée avec succès');
     }
-
-
-    public function editCategorieChambre($id_categoriechambre)
-    {
-        $categoriechambre = Categoriechambre::find($id_categoriechambre);
-        return view('packages.categoriechambres.admin.edit', compact('categoriechambre'));
     }
 
 
     public function updateCategorieChambre(Request $request, $id_categoriechambre)
 
     {
+
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
+
+
         $messages = [
 
             "libelle_categoriechambre.required" => "Le libelle de la catégorie de la chambre est requis",
@@ -229,7 +289,6 @@ class CategoriechambreController extends Controller
                 "title" => "MISE A JOUR DE LA CATEGORIE DE CHAMBRE",
                 "message" => "la catégorie de chambre " . $categoriechambre->libelle_categoriechambre . " a été modifiée avec succes"
             ]);
-            return redirect('Admin/categoriechambres/')->with('message', 'Catégorie chambre modifiée avec succès');
         } else {
 
             return response()->json([
@@ -239,14 +298,27 @@ class CategoriechambreController extends Controller
                 "message" => "Erreur de mise à jour"
             ]);
 
-            return redirect('Admin/categoriechambres/editer-categoriechambre/', $categoriechambre->id_categoriechambre)
-                ->with('message', 'Erreur de mise à jour');
+          
         }
+    }
+
     }
 
 
     public function deleteCategorieChambre($id_categoriechambre)
     {
+        
+        if (Auth::guard()->check() &&  Auth::user()->roles_user != "Hotel") {
+            return response()->json([
+                "status" => false,
+                "reload" => false,
+                "redirect_to" => route('login'),
+                "title" => "AVERTISSEMENT",
+                "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas l'accès à un compte hôtel",
+            ]);
+        }
+         else {
+
 
         $categoriechambre = Categoriechambre::where("id_categoriechambre", $id_categoriechambre)
             ->exists();
@@ -269,7 +341,6 @@ class CategoriechambreController extends Controller
                 "message" => "la catégorie de chambre " . $categoriechambre->libelle_categoriechambre . " a été bien supprimée dans le système"
             ]);
 
-            return redirect('Admin/categoriechambres/')->with('message', 'Catégorie chambre supprimée avec succès');
         } else {
             return response()->json([
                 "status" => false,
@@ -278,8 +349,9 @@ class CategoriechambreController extends Controller
                 "message" => "Catégorie de chambre introuvable"
             ]);
 
-            return redirect('Admin/categoriechambres/delete-categoriechambre/', $categoriechambre->id_categoriechambre)
-                ->with('message', 'Erreur de suppression de la catégorie');
+           
         }
+    }
+
     }
 }

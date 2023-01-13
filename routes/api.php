@@ -77,7 +77,6 @@ Route::group(
 
         Route::post('/deconnexion', [SiteWebController::class, 'logout']);
         Route::get('/profil', [SiteWebController::class, 'profile']);
-        Route::get('/monCompte', [AdminController::class, 'profileAdmin'])->name('admin.compte');
         Route::post('/rafraichir', [SiteWebController::class, 'refresh']);
 
 
@@ -365,7 +364,7 @@ Route::group(
 
     function () {
         Route::get('/tableau-de-bord', [HotelController::class, 'tableauDeBord'])->name('hotel.tableaudebord');
-        Route::get('/mon-compte', [HotelController::class, 'profileHotel'])->name('hotel.compte');
+        Route::get('/monCompte', [HotelController::class, 'profileHotel'])->name('hotel.compte');
 
         Route::get('/info-hotel', [HotelController::class, 'infoHotel'])->name('hotel.info.gestion');
         Route::post('/update-profile-hotel', [HotelController::class, 'updateProfileHotel'])->name('hotel.profile.update');
@@ -376,7 +375,6 @@ Route::group(
         //ROUTE CATEGORIE CHAMBRE DE CHAMBRE
         Route::prefix('categoriechambres')->group(function () {
             Route::get('/', [HotelCategoriechambreController::class, 'getCategorieChambre']);
-            Route::get('/ajouter-categoriechambre', [HotelCategoriechambreController::class, 'createCategorieChambre']);
             Route::post('/ajouter-categoriechambre', [HotelCategoriechambreController::class, 'storeCategorieChambre']);
             Route::get('/editer-categoriechambre/{id_categoriechambre}', [HotelCategoriechambreController::class,  'editCategorieChambre']);
             Route::put('/update-categoriechambre/{id_categoriechambre}', [HotelCategoriechambreController::class,  'updateCategorieChambre']);

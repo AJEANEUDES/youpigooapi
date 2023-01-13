@@ -115,22 +115,7 @@ Accueil :: Youpigoo
             <div class="swiper-wrapper">
                 @foreach ($chambres as $chambre)
                 <div class="new__content swiper-slide">
-                    <a href="{{ route('details.chambre.get', [$chambre->slug_categoriechambre, $chambre->slug_hotel, encodeId($chambre->id_chambre)]) }}"
-                        class="">
-                        @if ($chambre->status_reserver_chambre)
-                        <div class="new__tag">Reservée</div>
-                        @endif
-                        <img src="{{ $chambre->image_chambre }}" alt="" class="new__img">
-                        <h3 class="new__title">{{ $chambre->libelle_categoriechambre }} {{ $chambre->nom_hotel }}</h3>
-                        <span class="new__subtitle">{{ $chambre->description_chambre }} - {{ $chambre->classe_chambre }} - {{ $chambre->nom_ville
-                            }} - {{ $chambre->nom_pays
-                            }}
-                             -  - {{ $chambre->nombre_lits_chambre }} - {{ $chambre->nombre_places_chambre }}</span>
-                        <div class="new__prices">
-                            <span class="new__price">{{ $chambre->prix_standard_chambre }} FCFA</span>
-                            {{-- <span class="new__discount">15000000</span> --}}
-                        </div>
-                    </a>
+                  
                 </div>
                 @endforeach
             </div>

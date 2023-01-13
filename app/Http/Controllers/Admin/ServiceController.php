@@ -109,7 +109,7 @@ class ServiceController extends Controller
                     "status" => true,
                     "reload" => true,
                     "title" => "INFO SUR  LE SERVICE DE LA CHAMBRE",
-                    "data" => $info
+                    "informations sur le service de chambre" => $info
                 ], 200);
             } else {
                 return response()->json(
@@ -175,8 +175,7 @@ class ServiceController extends Controller
 
             return response()->json([
                 "status" => true,
-                "reload" => false,
-                "redirect_to" => null,
+                "reload" => true,
                 "title" => "ENREGISTREMENT DU SERVICE",
                 "message" => "Le service " . $service->nom_service . " a été ajouté avec succes"
             ]);
@@ -238,14 +237,13 @@ class ServiceController extends Controller
                 return response()->json([
                     "status" => true,
                     "reload" => true,
-                    "redirect_to" => null,
                     "title" => "MISE A JOUR DU SERVICE",
                     "message" => "Le service " . $service->nom_service . " a été mise à jour avec succes"
                 ]);
             } else {
                 return response()->json(
                     [
-                        "status" => 0,
+                        "status" => false,
                         "message" => "Erreur de mise à jour ",
 
                     ],
