@@ -584,39 +584,53 @@ class AdminController extends Controller
     }
 
 
-    public function profileClient(Request $request)
+    // public function profileClient(Request $request)
+    // {
+
+
+    //     $client = User::where('id', ($request->id_client))->orderByDesc('created_at')->first();
+
+    //     return response()->json(
+    //         [
+    //             "status" => true,
+    //             "reload" => false,
+    //             "redirect_to" => null,
+    //             "title" => "INFORMATIONS SUR LE PROFIL DU CLIENT",
+    //             "message" => "Informations sur le profil du client " . $client->nom_user . " " . $client->prenoms_user . "",
+
+    //         ],
+
+    //         200
+
+    //     );
+
+    //     // return response()->json(
+    //     //     [
+    //     //         "status" => 1,
+    //     //         "message" => "Informations sur le profil du client",
+    //     //         "datas" => $client = Auth::user()
+    //     //     ],
+    //     //     200
+    //     // );
+
+
+    // }
+
+    public function logout()
     {
 
+        $this->guard()->logout();
 
-        $client = User::where('id', ($request->id_client))->orderByDesc('created_at')->first();
+        // $client = Auth::user()->tokens()->delete();
 
-        return response()->json(
-            [
-                "status" => true,
-                "reload" => false,
-                "redirect_to" => null,
-                "title" => "INFORMATIONS SUR LE PROFIL DU CLIENT",
-                "message" => "Informations sur le profil du client " . $client->nom_user . " " . $client->prenoms_user . "",
-
-            ],
-
-            200
-
-        );
-
-        // return response()->json(
-        //     [
-        //         "status" => 1,
-        //         "message" => "Informations sur le profil du client",
-        //         "datas" => $client = Auth::user()
-        //     ],
-        //     200
-        // );
-
-
+        return response()->json([
+            "status" => true,
+            "reload" => true,
+            "redirect_to" => null,
+            "title" => "DECONNEXION",
+            "message" => 'Vous vous êtes déconnectés avec succès',
+        ]);
     }
-
-
 
 
     public function profileAdmin()

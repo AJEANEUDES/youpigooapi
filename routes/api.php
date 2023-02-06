@@ -3,9 +3,11 @@
 use App\Http\Controllers\Admin\CategoriechambreController;
 use App\Http\Controllers\Admin\ChambreController;
 use App\Http\Controllers\Admin\ClientController as AdminClientController;
+use App\Http\Controllers\Admin\CompagnieController;
 use App\Http\Controllers\Admin\FactureController;
 use App\Http\Controllers\Client\ClientController;
 use App\Http\Controllers\Admin\HotelController as AdminHotelController;
+use App\Http\Controllers\Admin\CompagnieController as AdminCompagnieController;
 use App\Http\Controllers\Admin\ImageController;
 use App\Http\Controllers\Admin\PaysController;
 use App\Http\Controllers\Admin\ReservationController;
@@ -15,11 +17,12 @@ use App\Http\Controllers\Admin\VilleController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Client\FactureController as ClientFactureController;
 use App\Http\Controllers\Client\ReservationController as ClientReservationController;
+use App\Http\Controllers\CompagnieController as ControllersCompagnieController;
 use App\Http\Controllers\Hotel\CategoriechambreController as HotelCategoriechambreController;
 use App\Http\Controllers\Hotel\ChambreController as HotelChambreController;
 use App\Http\Controllers\HotelController;
+use App\Http\Controllers\PasswordResetController;
 use App\Http\Controllers\PrivateController;
-use App\Http\Controllers\SiteWebController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -54,6 +57,10 @@ Auth::routes(['register' => true, 'verify' => false, 'reset' => false]);
 
 
 
+//Route publiques
+
+
+
 
 
 //ROUTE SITEWEB PAGE
@@ -72,25 +79,40 @@ Route::group(
     function ($router) {
 
 
-        Route::post('/inscription', [SiteWebController::class, 'inscription']);
-        Route::post('/connexion', [SiteWebController::class, 'connexion']);
+        Route::post('/inscription', [UserController::class, 'inscription']);
+        Route::post('/connexion', [UserController::class, 'connexion']);
 
-        Route::post('/deconnexion', [SiteWebController::class, 'logout']);
-        Route::get('/profil', [SiteWebController::class, 'profile']);
-        Route::post('/rafraichir', [SiteWebController::class, 'refresh']);
+        //Reset Password
+
+        Route::post('/reinitialiser-mot-de-passe', [PasswordResetController::class, 'resetPassword'])->name('reinitialiser.reset-code');
+        Route::post('/reinitialiser-mot-de-passe/{reset_code}', [PasswordResetController::class, 'getPasswordReset'])->name('reinitialiser.password-reset');
+        Route::get('/confirmation-email/verificationcode/{verification_code}', [UserController::class, 'verificationUser']);
+
+        // Route::post('/reinitialiser-mot-de-passe/{reset_code}', [PasswordResetController::class, 'reset']);
+        // Route::get('/reinitialiser-mon-de-passe', [PasswordResetController::class, 'viewResetPassword'])->name('reinitialiser.mot-de-passe.get');
+        // Route::get('/reinitialiser-mot-de-passe/{reset_code}', [PasswordResetController::class, 'resetNewPassword'])->name('reinitialiser.reset-code');
+
+
+        //Route protégées
+
+        Route::post('/deconnexion', [UserController::class, 'logout']);
+        Route::get('/profil', [UserController::class, 'profile']);
+        Route::post('/rafraichir', [UserController::class, 'refresh']);
+        Route::post('/changer-mot-de-passe', [UserController::class, 'updateMotdepasse']);
+        Route::post('/mon-compte', [UserController::class, 'updateCompte']);
 
 
 
 
-        Route::get('/', [SiteWebController::class, 'accueil'])->name('accueil.get');
-        // Route::get('/reserver-chambre', [SiteWebController::class, 'reserverChambre'])->name('reserver.chambre.get');
-        // Route::get('/paginate-chambre', [SiteWebController::class, 'fetchDataChambre'])->name('fetch.chambre');
-        // Route::get('/paginate-hotel', [SiteWebController::class, 'fetchDataHotel'])->name('fetch.hotel');
-        // Route::get('/paginate-categorie_chambre', [SiteWebController::class, 'fetchDataCatChambre'])->name('fetch.catchambre');
-        // Route::get('/paginate-type_hebergement', [SiteWebController::class, '@fetchDataTypeheb'])->name('fetch.typeheb');
+        Route::get('/', [UserController::class, 'accueil'])->name('accueil.get');
+        // Route::get('/reserver-chambre', [UserController::class, 'reserverChambre'])->name('reserver.chambre.get');
+        // Route::get('/paginate-chambre', [UserController::class, 'fetchDataChambre'])->name('fetch.chambre');
+        // Route::get('/paginate-hotel', [UserController::class, 'fetchDataHotel'])->name('fetch.hotel');
+        // Route::get('/paginate-categorie_chambre', [UserController::class, 'fetchDataCatChambre'])->name('fetch.catchambre');
+        // Route::get('/paginate-type_hebergement', [UserController::class, '@fetchDataTypeheb'])->name('fetch.typeheb');
 
-        // Route::get('/details-data-chambre', [SiteWebController::class, 'detailsChambre']);
-        // Route::get('/details-chambre/{slug_categoriechambre}/{slug_hotel}/{id_chambre}', [SiteWebController::class, 'viewDetailsChambre']);
+        // Route::get('/details-data-chambre', [UserController::class, 'detailsChambre']);
+        // Route::get('/details-chambre/{slug_categoriechambre}/{slug_hotel}/{id_chambre}', [UserController::class, 'viewDetailsChambre']);
 
 
 
@@ -137,7 +159,7 @@ Route::group(
     function ($router) {
         Route::get('/tableau-de-bord', [AdminController::class, 'tableauDeBord'])->name('admin.tableaudebord');
         Route::get('/monCompte', [AdminController::class, 'profileAdmin'])->name('admin.compte');
-        Route::post('/deconnexion', [SiteWebController::class, 'logout']);
+        Route::post('/deconnexion', [AdminController::class, 'logout']);
         Route::post('/update-profile-admin', [AdminController::class,  'updateProfileAdmin'])->name('admins.profile.update');
 
 
@@ -181,6 +203,19 @@ Route::group(
 
 
 
+        //ROUTE COMPAGNIE
+        Route::prefix('compagnies')->group(function () {
+            Route::get('/', [AdminCompagnieController::class, 'getCompagnie']);
+            Route::post('/ajouter-compagnie', [AdminCompagnieController::class, 'storeCompagnie']);
+            Route::put('/update-compagnie/{id_compagnie}', [AdminCompagnieController::class,  'updateCompagnie']);
+            // Route::get('/get-spec-compagnie', [AdminCompagnieController::class, 'getSpeccompagniecompagnie']);
+            Route::get('/info-compagnie/{id_compagnie}', [AdminCompagnieController::class, 'infoCompagnie']);
+            Route::get('/delete-compagnie/{id_compagnie}', [AdminCompagnieController::class, 'deleteCompagnie']);
+        });
+
+
+
+
 
         //ROUTE FACTURE
         Route::prefix('factures')->group(function () {
@@ -204,12 +239,11 @@ Route::group(
             // Route::get('/get-spec-hotel', [ChambreController::class, 'getSpechotelHotel']);
             Route::get('/info-chambre/{id_chambre}', [ChambreController::class, 'infoChambre']);
             Route::get('/delete-chambre/{id_chambre}', [ChambreController::class, 'deleteChambre']);
-
         });
 
 
-         //ROUTE service
-         Route::prefix('services')->group(function () {
+        //ROUTE service
+        Route::prefix('services')->group(function () {
             Route::get('/', [ServiceController::class, 'getServiceChambre'])->name('services-chambres.get.gestion');
             Route::post('/ajouter-service', [ServiceController::class, 'storeServiceChambre'])->name('services-chambres.store.gestion');
             Route::get('/get-spec-service', [ServiceController::class, 'getSpecChambreService'])->name('services-chambres.get.spec.gestion');
@@ -439,7 +473,7 @@ Route::group(
 
 
 
-        
+
         //ROUTE facture
         Route::prefix('factures')->group(function () {
             Route::get('/', [HotelFactureController::class, 'getFacture'])->name('factures.get.gestion');
@@ -485,80 +519,227 @@ Route::group(
 
 
 
-
-
-
-
-
-//ROUTE CLIENT
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN COMPAGNIE//////////////////////////////////////////////////////////////
 
 
 
 
 Route::group(
-    
+
     [
-        'prefix' => 'auth/Client', 
+
+        'prefix' => 'auth/Compagnie',
         'middleware' => 'api',
         "namespace" => "App\Http\Controllers",
 
-    
-    
-    ], function () {
-    Route::get('/deconnexion', [UserController::class, 'deconnexion']);
-    Route::get('/profil', [UserController::class, 'profileClient']);
 
-    Route::get('/tableau-de-bord', [UserController::class, 'tableauDeBord'])->name('utilisateur.tableaudebord');
-    // Route::get('/profile', [UserController::class, 'profile'])->name('utilisateur.profile');
-    Route::get('/info-client', [UserController::class, 'infoClient'])->name('clients.infos');
-    Route::post('/mon-compte', [UserController::class, 'updateUtilisateur'])->name('utilisateur.update');
-    Route::get('/mot-de-passe', [UserController::class, 'motDePasse'])->name('utilisateur.mdp');
-    Route::post('/mot-de-passe', [UserController::class, 'updateMotDePasse'])->name('utilisateur.update.mdp');
 
-    //ROUTE RESERVATION
-    Route::prefix('reservations')->group(function () {
-        Route::get('/', [ClientReservationController::class, 'getReservations'])->name('reservations.get');
-        Route::get('/listes', [ClientReservationController::class, 'listeReservation'])->name('reservations.liste');
-        Route::post('/ajouter-reservation', [ClientReservationController::class, 'storeReservation'])->name('reservations.store');
-        Route::get('/info-reservation', [ClientClientReservationController::class, 'infoReservation'])->name('reservations.info');
-        Route::post('/annulation-reservation', [ClientReservationController::class, 'annulationReservation'])->name('reservations.annulation');
-        Route::post('/{datearrivee}/disponibilite-chambre', [ClientReservationController::class, 'disponibiliteChambre'])->name('reservations.disponibilitechambre');
-        Route::get('/payementsuccess', [ClientReservationController::class, 'reservation_payement_sucess']);
-        Route::get('/echecpayement', [ClientReservationController::class, 'reservation_payement_annuler']);
-        Route::post('/payementparstripe', [ClientReservationController::class, 'stripePost']);
-        Route::get('/checkout', [ClientReservationController::class, 'checkout'])->name('reservations.checkout');
-        Route::get('/success', [ClientReservationController::class, 'success'])->name('reservations.success');
-        Route::get('/cancel', [ClientReservationController::class, 'cancel'])->name('reservations.cancel');
-        
+    ],
 
-    });
+
+    function () {
+        Route::get('/tableau-de-bord', [ControllersCompagnieController::class, 'tableauDeBord'])->name('hotel.tableaudebord');
+        Route::get('/monCompte', [ControllersCompagnieController::class, 'profileHotel'])->name('hotel.compte');
+
+        Route::get('/info-hotel', [ControllersCompagnieController::class, 'infoHotel'])->name('hotel.info.gestion');
+        Route::post('/update-profile-hotel', [CompagnieController::class, 'updateProfileHotel'])->name('hotel.profile.update');
+        Route::post('/mot-de-passe', [ControllersCompagnieController::class, 'updateMotDePasse'])->name('hotel.update.mdp');
+
+        //ROUTE Categorie chambre
+
+        //ROUTE CATEGORIE CHAMBRE DE CHAMBRE
+        Route::prefix('categoriechambres')->group(function () {
+            Route::get('/', [HotelCategoriechambreController::class, 'getCategorieChambre']);
+            Route::post('/ajouter-categoriechambre', [HotelCategoriechambreController::class, 'storeCategorieChambre']);
+            Route::get('/editer-categoriechambre/{id_categoriechambre}', [HotelCategoriechambreController::class,  'editCategorieChambre']);
+            Route::put('/update-categoriechambre/{id_categoriechambre}', [HotelCategoriechambreController::class,  'updateCategorieChambre']);
+            // Route::get('/get-spec-categoriechambre', [HotelCategoriechambreController::class, 'getSpecCategorieChambreHotel']);
+            Route::get('/info-categoriechambre/{id_categoriechambre}', [HotelCategoriechambreController::class, 'infoCategoriechambre']);
+            Route::get('/delete-categoriechambre/{id_categoriechambre}', [HotelCategoriechambreController::class, 'deleteCategorieChambre']);
+        });
 
 
 
-    //ROUTE FACTURE
-    Route::prefix('factures')->group(function () {
-        Route::get('/', [ClientFactureController::class, 'getFacture'])->name('factures.get');
-        Route::get('/listes', [ClientFactureController::class, 'listeFacture'])->name('factures.liste');
-        // Route::get('/get-spec-facture', '[ClientFactureController::class, '']@getSpecParkingVoiture')->name('factures.get.spec');
-        Route::get('/info-facture', [ClientFactureController::class, 'infoFacture'])->name('factures.info');
-        Route::post('/download-facture', [ClientFactureController::class, 'downloadFacture'])->name('factures.download');
-        Route::post('/update-facture', [ClientFactureController::class, 'updateFacture'])->name('factures.update');
-    });
+        //ROUTE CHAMBRE
+        Route::prefix('chambres')->group(function () {
+            Route::get('/', [HotelChambreController::class, 'getChambre'])->name('chambres.get');
 
 
-    //LIENS DE PAIEMENT
+            Route::get('/ajouter-chambre', [HotelChambreController::class, 'createChambre']);
+            Route::post('/ajouter-chambre', [HotelChambreController::class, 'storeChambre']);
+            Route::get('/editer-chambre/{id_chambre}', [HotelChambreController::class,  'editChambre']);
+            Route::put('/update-chambre/{id_chambre}', [HotelChambreController::class,  'updateChambre']);
+            // Route::get('/get-spec-hotel', [HotelChambreController::class, 'getSpechotelHotel']);
+            Route::get('/info-chambre/{id_chambre}', [HotelChambreController::class, 'infoChambre']);
+            Route::get('/delete-chambre/{id_chambre}', [HotelChambreController::class, 'deleteChambre']);
+        });
 
 
 
-    Route::get('/notifications-payement', [ClientReservationController::class, 'notificationPayement']);
-    Route::any('/payement-callback', [ClientReservationController::class, 'payementCallback'])->name('payements.callback');
-    Route::get('/payement-cancel', [ClientReservationController::class, 'payementCancel'])->name('payements.cancel');
-    Route::any('/payement-return', [ClientReservationController::class, 'payementReturn'])->name('payements.return');
-});
+        // //ROUTE hotel
+        // Route::prefix('hotels')->group(function () {
+        //     Route::get('/get-spec-hotel', [HotelHotelController::class, 'getSpecHotelChambre'])->name('hotels.get.spec.gestion');
+        //     Route::get('/', [HotelHotelController::class, 'getSpecHotelChambre'])->name('hotels.get.spec.gestion');
+        //     Route::get('/get-spec-hotel', [HotelHotelController::class, 'getSpecHotelChambre'])->name('hotels.get.spec.gestion');
+        //     Route::get('/get-spec-hotel', [HotelHotelController::class, 'getSpecHotelChambre'])->name('hotels.get.spec.gestion');
+        //     Route::get('/get-spec-hotel', [HotelHotelController::class, 'getSpecHotelChambre'])->name('hotels.get.spec.gestion');
+        // });
 
 
-//Reset Password
-Route::get('/reinitialiser-mon-de-passe', [PrivateController::class, 'viewResetPassword'])->name('reinitialiser.mon-de-passe.get');
-Route::post('/reinitialiser-mon-de-passe', [PrivateController::class, 'resetPassword'])->name('reinitialiser.mon-de-passe.check');
-Route::get('/reinitialiser-mon-de-passe/{reset_code}', [PrivateController::class, 'resetNewPassword'])->name('reinitialiser.reset-code');
-Route::post('/reinitialiser-mon-de-passe/{reset_code}', [PrivateController::class, 'getPasswordReset'])->name('reinitialiser.password-reset');
+
+
+        //ROUTE reservation
+        Route::prefix('reservations')->group(function () {
+            Route::get('/', [HotelReservationController::class, 'getReservations'])->name('reservations.get.gestion');
+            Route::get('/get-spec-reservation', [HotelReservationController::class, 'getSpecreservation'])->name('reservations.get.spec.gestion');
+            Route::post('/update-reservation', [HotelReservationController::class, 'updatereservation'])->name('reservations.update.gestion');
+            Route::get('/info-reservation', [HotelReservationController::class, 'infoReservation'])->name('reservations.info.gestion');
+            Route::post('/store-reservation', [HotelReservationController::class, 'storeReservation'])->name('reservations.store.gestion');
+            Route::post('/delete-reservation', [HotelReservationController::class, 'annulationReservation'])->name('reservations.annuler.gestion');
+        });
+
+
+        //ROUTE service
+        Route::prefix('services-chambres')->group(function () {
+            Route::get('/', [HotelServiceController::class, 'getServiceChambre'])->name('services-chambres.get.gestion');
+            Route::get('/get-spec-service', [HotelServiceController::class, 'getSpecChambreService'])->name('services-chambres.get.spec.gestion');
+            Route::post('/update-service', [HotelServiceController::class, 'updateServiceChambre'])->name('services-chambres.update.gestion');
+            Route::get('/info-service', [HotelServiceController::class, 'infoServiceChambre'])->name('services-chambres.info.gestion');
+            Route::post('/store-service', [HotelServiceController::class, 'storeServiceChambre'])->name('services-chambres.store.gestion');
+            Route::post('/delete-service', [HotelServiceController::class, 'deleteServiceChambre'])->name('services-chambres.delete.gestion');
+        });
+
+
+
+
+
+
+
+        //ROUTE facture
+        Route::prefix('factures')->group(function () {
+            Route::get('/', [HotelFactureController::class, 'getFacture'])->name('factures.get.gestion');
+            Route::get('/get-spec-facture', [HotelFactureController::class, 'getSpecFacture'])->name('factures.get.spec.gestion');
+            Route::post('/update-facture', [HotelFactureController::class, 'updatefacture'])->name('factures.update.gestion');
+            Route::get('/info-facture', [HotelFactureController::class, 'infoFacture'])->name('factures.info.gestion');
+            Route::post('/store-facture', [HotelFactureController::class, 'storeFacture'])->name('factures.store.gestion');
+            Route::post('/delete-facture', [HotelFactureController::class, 'deleteFacture'])->name('factures.delete.gestion');
+        });
+
+
+
+
+
+
+
+        //ROUTE IMAGE_CHAMBRE
+
+        Route::prefix('image-chambres')->group(function () {
+            Route::get('/', [HotelImageController::class, 'getImageChambre'])->name('images-chambres.get.gestion');
+            Route::get('/get-spec-image-chambres', [HotelImageController::class, 'getSpecImageChambre'])->name('images-chambres.get.spec.gestion');
+            Route::post('/update-image-chambres', [HotelImageController::class, 'updateImageChambre'])->name('images-chambres.update.gestion');
+            Route::get('/info-image-chambres', [HotelImageController::class, 'infoImageChambre'])->name('images-chambres.info.gestion');
+            Route::post('/store-image-chambres', [HotelImageController::class, 'storeImageChambre'])->name('images-chambres.store.gestion');
+            Route::post('/delete-image-chambres', [HotelImageController::class, 'deleteImageChambre'])->name('images-chambres.delete.gestion');
+        });
+
+
+        //à faire
+        //ROUTE IMAGE_HOTEL
+        //ROUTE IMAGE_CATEGORIECHAMBRE
+        //ROUTE IMAGE_TYPEHEBERGEMNT
+        //ROUTE IMAGE_VILLE
+        //ROUTE IMAGE_PAYS
+
+
+
+    }
+);
+
+
+
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+////////////////////////////////////////////////ROUTE LOGIN CLIENT//////////////////////////////////////////////////////////////
+
+
+
+
+Route::group(
+
+    [
+        'prefix' => 'auth/Client',
+        'middleware' => 'api',
+        "namespace" => "App\Http\Controllers",
+
+
+
+    ],
+    function () {
+
+        Route::get('/deconnexion', [UserController::class, 'deconnexion']);
+        Route::get('/profil', [UserController::class, 'profileClient']);
+
+        Route::get('/tableau-de-bord', [UserController::class, 'tableauDeBord'])->name('utilisateur.tableaudebord');
+        // Route::get('/profile', [UserController::class, 'profile'])->name('utilisateur.profile');
+        Route::get('/info-client', [UserController::class, 'infoClient'])->name('clients.infos');
+        Route::post('/mon-compte', [UserController::class, 'updateUtilisateur'])->name('utilisateur.update');
+        Route::get('/mot-de-passe', [UserController::class, 'motDePasse'])->name('utilisateur.mdp');
+        Route::post('/mot-de-passe', [UserController::class, 'updateMotDePasse'])->name('utilisateur.update.mdp');
+
+        //ROUTE RESERVATION
+        Route::prefix('reservations')->group(function () {
+            Route::get('/', [ClientReservationController::class, 'getReservations'])->name('reservations.get');
+            Route::get('/listes', [ClientReservationController::class, 'listeReservation'])->name('reservations.liste');
+            Route::post('/ajouter-reservation', [ClientReservationController::class, 'storeReservation'])->name('reservations.store');
+            Route::get('/info-reservation', [ClientClientReservationController::class, 'infoReservation'])->name('reservations.info');
+            Route::post('/annulation-reservation', [ClientReservationController::class, 'annulationReservation'])->name('reservations.annulation');
+            Route::post('/{datearrivee}/disponibilite-chambre', [ClientReservationController::class, 'disponibiliteChambre'])->name('reservations.disponibilitechambre');
+            Route::get('/payementsuccess', [ClientReservationController::class, 'reservation_payement_sucess']);
+            Route::get('/echecpayement', [ClientReservationController::class, 'reservation_payement_annuler']);
+            Route::post('/payementparstripe', [ClientReservationController::class, 'stripePost']);
+            Route::get('/checkout', [ClientReservationController::class, 'checkout'])->name('reservations.checkout');
+            Route::get('/success', [ClientReservationController::class, 'success'])->name('reservations.success');
+            Route::get('/cancel', [ClientReservationController::class, 'cancel'])->name('reservations.cancel');
+        });
+
+
+
+        //ROUTE FACTURE
+        Route::prefix('factures')->group(function () {
+            Route::get('/', [ClientFactureController::class, 'getFacture'])->name('factures.get');
+            Route::get('/listes', [ClientFactureController::class, 'listeFacture'])->name('factures.liste');
+            // Route::get('/get-spec-facture', '[ClientFactureController::class, '']@getSpecParkingVoiture')->name('factures.get.spec');
+            Route::get('/info-facture', [ClientFactureController::class, 'infoFacture'])->name('factures.info');
+            Route::post('/download-facture', [ClientFactureController::class, 'downloadFacture'])->name('factures.download');
+            Route::post('/update-facture', [ClientFactureController::class, 'updateFacture'])->name('factures.update');
+        });
+
+
+        //LIENS DE PAIEMENT
+
+
+
+        Route::get('/notifications-payement', [ClientReservationController::class, 'notificationPayement']);
+        Route::any('/payement-callback', [ClientReservationController::class, 'payementCallback'])->name('payements.callback');
+        Route::get('/payement-cancel', [ClientReservationController::class, 'payementCancel'])->name('payements.cancel');
+        Route::any('/payement-return', [ClientReservationController::class, 'payementReturn'])->name('payements.return');
+    }
+);

@@ -169,6 +169,7 @@ class LoginController extends Controller
                 } elseif ($tempUser->roles_user == "Admin") {
                     $redirect = route('admin.tableaudebord');
                 }
+                
                 elseif ($tempUser->roles_user == "Superadmin") {
                     $redirect = route('superadmin.tableaudebord');
                 }
@@ -181,6 +182,7 @@ class LoginController extends Controller
                     "message" => "Bienvenue " . $tempUser->prenoms_user . " " . $tempUser->nom_user . ", Connexion effectuée avec succes"
                 ]);
             } else {
+
                 Auth::logout();
                 return response()->json([
                     "status" => false,

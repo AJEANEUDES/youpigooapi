@@ -142,9 +142,7 @@ class ClientController extends Controller
                 "ville_user.max" => "Votre ville de residence est trop longue",
                 "pays_user.required" => "Votre pays de residence est requis",
                 "pays_user.max" => "Votre pays de residence est trop long",
-                "password.required" => "Le mot de passe est requis",
-                "password.min" => "Le mot de passe est trop court",
-                "password.same" => "Les mots de passes ne sont pas identiques",
+               
 
             ];
 
@@ -301,4 +299,7 @@ class ClientController extends Controller
 
 
     }
+
+
+   
 }

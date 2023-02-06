@@ -172,8 +172,6 @@ class HotelController extends Controller
         }
     }
 
-
-
     }
 
 
@@ -327,7 +325,6 @@ class HotelController extends Controller
         ]);
 
     }
-
 
     }
 
@@ -601,4 +598,5 @@ class HotelController extends Controller
         }
     }
     }
+
 }

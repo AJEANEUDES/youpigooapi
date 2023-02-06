@@ -32,7 +32,6 @@ class ForgetPasswordMail extends Mailable
      */
     public function build()
     {
-        //return $this->view('view.name');
         return $this->markdown('email-password')->with([
             'user_name' => $this->user_name,
             'reset_code' => $this->reset_code

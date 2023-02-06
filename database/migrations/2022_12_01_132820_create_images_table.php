@@ -17,35 +17,35 @@ class CreateImagesTable extends Migration
 
             $table->bigIncrements('id_image');
             $table->string('path_image'); //chemin de l'image
-            $table->bigInteger('pays_id')->unsigned()->nullable();
-            $table->bigInteger('ville_id')->unsigned()->nullable();
-            $table->bigInteger('typehebergement_id')->unsigned()->nullable();
+          
+            // $table->bigInteger('pays_id')->unsigned()->nullable();
+            // $table->bigInteger('ville_id')->unsigned()->nullable();
+            // $table->bigInteger('typehebergement_id')->unsigned()->nullable();
             $table->bigInteger('hotel_id')->unsigned()->nullable();
-            $table->bigInteger('categoriechambre_id')->unsigned()->nullable();
+            // $table->bigInteger('categoriechambre_id')->unsigned()->nullable();
             $table->bigInteger('chambre_id')->unsigned()->nullable();
-            // $table->bigInteger('societe_id')->unsigned()->nullable();
             $table->bigInteger('created_by')->unsigned()->nullable();
             $table->timestamps();
 
-            $table->foreign('pays_id')
-                ->on('pays')
-                ->references('id_pays')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+            // $table->foreign('pays_id')
+            //     ->on('pays')
+            //     ->references('id_pays')
+            //     ->onUpdate('cascade')
+            //     ->onDelete('cascade');
 
 
-            $table->foreign('ville_id')
-                ->on('villes')
-                ->references('id_ville')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+            // $table->foreign('ville_id')
+            //     ->on('villes')
+            //     ->references('id_ville')
+            //     ->onUpdate('cascade')
+            //     ->onDelete('cascade');
 
 
-            $table->foreign('typehebergement_id')
-                ->on('typehebergements')
-                ->references('id_typehebergement')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+            // $table->foreign('typehebergement_id')
+            //     ->on('typehebergements')
+            //     ->references('id_typehebergement')
+            //     ->onUpdate('cascade')
+            //     ->onDelete('cascade');
 
 
 
@@ -56,11 +56,11 @@ class CreateImagesTable extends Migration
                 ->onDelete('cascade');
 
 
-            $table->foreign('categoriechambre_id')
-                ->on('categoriechambres')
-                ->references('id_categoriechambre')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+            // $table->foreign('categoriechambre_id')
+            //     ->on('categoriechambres')
+            //     ->references('id_categoriechambre')
+            //     ->onUpdate('cascade')
+            //     ->onDelete('cascade');
 
 
             $table->foreign('chambre_id')

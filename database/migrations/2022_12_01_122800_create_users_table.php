@@ -14,26 +14,24 @@ class CreateUsersTable extends Migration
      */
     public function up()
     {
-        //Table Users = table Admin
         
         Schema::create('users', function (Blueprint $table) {
           
             $table->bigIncrements('id');
-            // $table->string('code_user')->unique();
             $table->string('nom_user', 100);
             $table->string('prenoms_user', 50);
             $table->string('email_user', 100)->unique();
-            $table->string('telephone_user', 15)->unique();
             $table->string('prefix_user', 10)->nullable();
+            $table->string('telephone_user', 15)->unique();
             $table->string('adresse_user', 500);
-            $table->string('image_user')->default("images/profile.jpg");
-            $table->string('roles_user', 30);
-            $table->boolean('status_user')->default(true);
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
             $table->string('pays_user', 100)->nullable();
             $table->string('ville_user', 100)->nullable();
-
+            $table->string('image_user')->default("images/profile.jpg");
+            $table->string('roles_user', 30);
+            $table->boolean('status_user')->default(false);
+            $table->timestamp('email_verified_at')->nullable();
+            $table->string('password');
+            $table->string('verification_code')->nullable();
             $table->rememberToken();
             $table->timestamps();
            

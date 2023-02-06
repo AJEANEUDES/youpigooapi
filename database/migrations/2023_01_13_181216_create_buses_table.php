@@ -20,6 +20,7 @@ class CreateBusesTable extends Migration
             $table->string('slug_bus', 200);
             $table->string('immatriculation_bus', 200);
             $table->string('image_bus')->nullable();
+            $table->text('description_bus');
             $table->boolean('status_bus')->default(true);
             $table->integer('nombre_places_bus');
             $table->string('marque_bus')->nullable();

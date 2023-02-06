@@ -24,7 +24,8 @@ class CreateTrajetsTable extends Migration
             $table->date('date_arrivee');
             $table->time('heure_depart');
             $table->time('heure_arrivee');
-           
+            $table->integer("prix_trajet");
+            $table->string("blockedSeats")->default("");
             $table->boolean('status_trajet')->default(true);
 
             $table->bigInteger('bus_id')->unsigned()->nullable();

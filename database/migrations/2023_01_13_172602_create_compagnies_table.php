@@ -21,7 +21,7 @@ class CreateCompagniesTable extends Migration
             $table->text('description_compagnie');
             $table->string('image_compagnie')->nullable();
             $table->boolean('status_compagnie')->default(true);
-            $table->string('prix_estimatif_reservation_bus_compagnie');
+            // $table->string('prix_estimatif_reservation_bus_compagnie');
             $table->string('telephone1_compagnie', 100);
             $table->string('telephone2_compagnie', 100)->nullable();
             $table->string('email_compagnie')->unique();

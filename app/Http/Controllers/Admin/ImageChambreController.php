@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
-class ImageController extends Controller
+class ImageChambreController extends Controller
 {
 
 
@@ -23,7 +23,7 @@ class ImageController extends Controller
     // LA GESTION DES IMAGES DES CHAMBRES
     // LA GESTION DES IMAGES DES CHAMBRES
 
-    protected $image_chambre, $image_hotel;
+    protected $image_chambre;
 
     public function guard()
     {
@@ -35,7 +35,7 @@ class ImageController extends Controller
     {
         $this->middleware('auth:api');
         $this->image_chambre = $this->guard()->user();
-        $this->image_hotel = $this->guard()->user();
+
     }
 
     public function roleUser()
@@ -76,13 +76,6 @@ class ImageController extends Controller
                     'chambres.categoriechambre_id'
                 )
 
-                ->join(
-                    'typehebergements',
-                    'typehebergements.id_typehebergement',
-                    '=',
-                    'chambres.typehebergement_id'
-                )
-
                 ->join('hotels', 'hotels.id_hotel', '=', 'chambres.hotel_id')
                 ->join('villes', 'villes.id_ville', '=', 'chambres.ville_id')
                 ->join('pays', 'pays.id_pays', '=', 'chambres.pays_id')
@@ -108,7 +101,7 @@ class ImageController extends Controller
                 'pays.*'
 
             )
-                ->join('chambres', 'chambres.id_chambre', '=', 'images.chambre_id')
+            ->join('chambres', 'chambres.id_chambre', '=', 'images.chambre_id')
                 ->join(
                     'categoriechambres',
                     'categoriechambres.id_categoriechambre',
@@ -134,8 +127,9 @@ class ImageController extends Controller
 
             return response()->json(
                 [
-                    "status" => 1,
-                    "message" => "Liste des Images de chambres",
+                    "status" => true,
+                    "message" => "LISTE DES IMAGES DE CHAMBRE",
+                    "Chambres" =>  $chambres,
                     "images de chambres" =>  $image_chambre
                 ],
                 200
@@ -143,7 +137,7 @@ class ImageController extends Controller
         }
     }
 
-    public function infoImageChambre(Request $request, $id_image)
+    public function infoImageChambre(Request $request, $id_image_chambre)
     {
 
         if (Auth::guard()->check() &&  Auth::user()->roles_user != "Admin") {
@@ -156,13 +150,13 @@ class ImageController extends Controller
             ]);
         } else {
 
-            $images = Image::where("id_image", $id_image)->exists();
+            $image_chambre = Image::where("id_image", $id_image_chambre)->exists();
 
-            if ($images) {
+            if ($image_chambre) {
 
-                $images = Image::find($id_image);
+                $info = Image::find($id_image_chambre);
 
-                $images = Image::where('id_image', ($id_image))
+                $image_chambre = Image::where('id_image', ($id_image_chambre))
                     ->select(
 
                         'images.*',
@@ -197,13 +191,14 @@ class ImageController extends Controller
                     ->orderByDesc('images.created_at')
                     ->first();
 
-                // return response()->json($images);
 
                 return response()->json(
                     [
-                        "status" => 1,
+                        "status" => true,
+                        "reload" => true,
+                        "title" => "INFO SUR LA CATEGORIE DE CHAMBRE",
                         "message" => "Image trouvée",
-                        "image de chambre" => $images
+                        "image de la chambre" => $info
 
                     ],
                     200

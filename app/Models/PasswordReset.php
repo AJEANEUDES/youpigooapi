@@ -10,6 +10,12 @@ class PasswordReset extends Model
     use HasFactory;
 
     protected $table = 'password_resets';
+    const UPDATED_AT = null;
+    
+    // protected $fillable = [
+    //     'email_user',
+    // ];
     protected $primaryKey = 'id_password_reset';
     protected $guarded = ['created_at', 'updated_at'];
+
 }
