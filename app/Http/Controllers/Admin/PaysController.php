@@ -126,10 +126,10 @@ class PaysController extends Controller
                     // ->join('users', 'users.id', '=', 'pays.created_by')
                     ->orderByDesc('pays.created_at')
                     ->first();
-                // return response()->json($pays);
 
                 return response()->json(
                     [
+                        
                         "status" => true,
                         "reload" => true,
                         "title" => "INFO SUR LE PAYS",

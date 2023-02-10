@@ -420,7 +420,7 @@ class UserController extends Controller
             "email_user.email" => "Votre adresse mail est invalide",
             "email_user.max" => "Votre adresse mail est trop longue",
             "email_user.unique" => "Votre adresse mail est déjà utilisé et enrégistré dans la base",
-            "prefix_user.required" => "le code téléphonique de votre est requis",
+            "prefix_user.required" => "le code téléphonique de votre pays est requis",
             "telephone_user.required" => "Votre numéro de telephone est requis",
             "telephone_user.unique" => "Votre numéro de telephone est déjà utilisé et enrégistré dans la base",
             "telephone_user.min" => "Votre numero de telephone est court",

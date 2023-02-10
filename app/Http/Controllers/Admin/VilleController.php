@@ -53,7 +53,7 @@ class VilleController extends Controller
             ]);
         } else {
 
-            $pays = Pays::where('status_pays', true)->orderByDesc('created_at')->get();
+            $villes = Pays::where('status_pays', true)->orderByDesc('created_at')->get();
             $villes = Ville::with("pays")->get();
 
             $villes = Ville::all();
@@ -105,11 +105,7 @@ class VilleController extends Controller
                 "title" => "AVERTISSEMENT",
                 "message" => "Vous n'êtes pas autorisé. Vous n'êtes pas un administrateur",
             ]);
-        } 
-        
-        else
-        
-        {
+        } else {
             $ville = Ville::with("pays")->get();
             $ville = Ville::where(
                 "id_ville",
@@ -324,9 +320,7 @@ class VilleController extends Controller
                     "title" => "MISE A JOUR DE LA VILLE",
                     "message" => "La ville " . $ville->nom_ville . " a été modifié avec succès"
                 ]);
-            }
-            
-            else {
+            } else {
 
                 return response()->json([
                     "status" => false,
@@ -334,8 +328,6 @@ class VilleController extends Controller
                     "title" => "MISE A JOUR DE LA VILLE",
                     "message" => "Erreur de mise à jour"
                 ]);
-
-                
             }
         }
     }
@@ -356,39 +348,36 @@ class VilleController extends Controller
 
 
 
-        $ville = ville::where("id_ville", $id_ville)
-            ->exists();
+            $ville = ville::where("id_ville", $id_ville)
+                ->exists();
 
-        if ($ville) {
+            if ($ville) {
 
-            $ville = Ville::findOrFail($id_ville);
+                $ville = Ville::findOrFail($id_ville);
 
-            $destination = 'storage/uploads/' . $ville->image_ville;
+                $destination = 'storage/uploads/' . $ville->image_ville;
 
-            if (File::exists($destination)) {
-                File::delete($destination);
+                if (File::exists($destination)) {
+                    File::delete($destination);
+                }
+
+                $ville->delete();
+
+
+                return response()->json([
+                    "status" => true,
+                    "reload" => true,
+                    "title" => "SUPPRESSION DE LA VILLE",
+                    "message" => "La ville  " . $ville->nom_ville . "  a été bien supprimée dans le système"
+                ]);
+            } else {
+                return response()->json([
+                    "status" => false,
+                    "reload" => true,
+                    "title" => "SUPPRESSION DE LA VILLE",
+                    "message" => "Ville introuvable"
+                ]);
             }
-
-            $ville->delete();
-
-
-            return response()->json([
-                "status" => true,
-                "reload" => true,
-                "title" => "SUPPRESSION DE LA VILLE",
-                "message" => "La ville  " . $ville->nom_ville . "  a été bien supprimée dans le système"
-            ]);
-        } else {
-            return response()->json([
-                "status" => false,
-                "reload" => true,
-                "title" => "SUPPRESSION DE LA VILLE",
-                "message" => "Ville introuvable"
-            ]);
-
-       
         }
-    }
-
     }
 }

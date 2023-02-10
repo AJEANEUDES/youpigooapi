@@ -152,7 +152,7 @@ Route::group(
 Route::group(
     [
         'prefix' => 'auth/Admin',
-        'middleware' => 'api',
+        'middleware' => 'jwt',
         "namespace" => "App\Http\Controllers",
 
     ],

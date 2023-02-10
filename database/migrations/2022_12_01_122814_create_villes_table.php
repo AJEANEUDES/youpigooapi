@@ -33,9 +33,7 @@ class CreateVillesTable extends Migration
             ->onUpdate('cascade')
             ->onDelete('cascade');
 
-
             
-
             $table->foreign('created_by')
             ->on('users')
             ->references('id')

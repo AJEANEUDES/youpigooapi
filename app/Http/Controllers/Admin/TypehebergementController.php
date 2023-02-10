@@ -99,6 +99,7 @@ class TypehebergementController extends Controller
     }
 
 
+
     public function getSpecTypeHotel(Request $request)
     {
         $hotel = Hotel::where('hotel_id', ($request->hotel_id))->get();
@@ -165,7 +166,11 @@ class TypehebergementController extends Controller
                     "title" => "INFO SUR LE TYPE D'HEBERGEMENT",
                     "data" => $info
                 ], 200);
-            } else {
+            }
+
+             else 
+             
+             {
                 return response()->json(
                     [
                         "status" => false,
